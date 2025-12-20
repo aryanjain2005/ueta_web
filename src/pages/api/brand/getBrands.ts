@@ -14,7 +14,7 @@ export const GET: APIRoute = async ({ locals }) => {
   // Map to the shape SearchBar uses: { name, objectId }
   const result = brands.map((b) => ({
     name: b.name,
-    objectId: b.id, // or _id depending on your schema
+    slug: b.slug, // or _id depending on your schema
   }));
 
   return new Response(JSON.stringify(result), {

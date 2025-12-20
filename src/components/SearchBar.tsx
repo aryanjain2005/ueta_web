@@ -1,16 +1,36 @@
 // src/components/SearchBar.tsx
 import React, { useState, useEffect } from "react";
 
-const SearchBar: React.FC = () => {
-  const [searchBy, setSearchBy] = useState<string>("brand");
+type Props = {
+  isAdmin?: boolean;
+  isDistributor?: boolean;
+};
+
+const SearchBar: React.FC<Props> = ({
+  isAdmin = false,
+  isDistributor = false,
+}) => {
+  const canSeeDistributor = isAdmin || isDistributor;
+  const [searchBy, setSearchBy] = useState<string>("all");
   const [query, setQuery] = useState<string>("");
-  const [suggestions, setSuggestions] = useState<
-    { name: string; objectId: string }[]
-  >([]);
-  const [data, setData] = useState<Record<
-    string,
-    { name: string; objectId: string }[]
-  > | null>(null);
+  type BaseItem = {
+    name: string;
+    slug: string;
+    type: "brand" | "product" | "dealer" | "distributor";
+    shopName?: string;
+  };
+
+  type Item = BaseItem & {
+    matchedField?: "name" | "shopName";
+  };
+
+  const [suggestions, setSuggestions] = useState<Item[]>([]);
+  const [data, setData] = useState<{
+    brand: BaseItem[];
+    product: BaseItem[];
+    dealer: BaseItem[];
+    distributor: BaseItem[];
+  } | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -24,18 +44,27 @@ const SearchBar: React.FC = () => {
           ]);
 
         setData({
-          brand: brandsRes.map((b: any) => ({ name: b.name, objectId: b._id })),
+          brand: brandsRes.map((b: any) => ({
+            name: b.name,
+            slug: b.slug,
+            type: "brand",
+          })),
           product: productsRes.map((p: any) => ({
             name: p.name,
-            objectId: p._id,
+            slug: p.slug,
+            type: "product",
           })),
           dealer: dealersRes.map((d: any) => ({
             name: d.name,
-            objectId: d._id,
+            slug: d.slug,
+            type: "dealer",
+            shopName: d.shopName, // ✅ matches columns: { shopName: true }
           })),
           distributor: distributorsRes.map((d: any) => ({
             name: d.name,
-            objectId: d._id,
+            slug: d.slug,
+            type: "distributor",
+            shopName: d.shopName, // ✅
           })),
         });
       } catch (error) {
@@ -47,7 +76,12 @@ const SearchBar: React.FC = () => {
   }, []);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSearchBy(event.target.value);
+    const value = event.target.value;
+    if (value === "distributor" && !canSeeDistributor) {
+      setSearchBy("all");
+    } else {
+      setSearchBy(value);
+    }
     setQuery("");
     setSuggestions([]);
   };
@@ -56,55 +90,87 @@ const SearchBar: React.FC = () => {
     const searchQuery = event.target.value.toLowerCase();
     setQuery(searchQuery);
 
-    if (data && searchQuery) {
-      const filteredSuggestions = data[searchBy]
-        ?.filter((item) => {
-          const words = item.name.split(/\s+/);
-          return words.some((word) =>
-            word.toLowerCase().startsWith(searchQuery)
-          );
-        })
-        ?.sort((a, b) => {
-          const rank = (item: { name: string }) => {
-            const words = item.name.split(/\s+/);
-            let positionScore = 0;
-            let matchCount = 0;
+    if (!data || !searchQuery) {
+      setSuggestions([]);
+      return;
+    }
 
+    let pool: Item[] = [];
+
+    if (searchBy === "all") {
+      pool = [
+        ...data.brand,
+        ...data.product,
+        ...data.dealer,
+        ...(canSeeDistributor ? data.distributor : []),
+      ];
+    } else if (searchBy === "distributor") {
+      pool = canSeeDistributor ? data.distributor : [];
+    } else {
+      pool = data[searchBy] || [];
+    }
+
+    const filtered: Item[] = pool
+      .map<Item | null>((item) => {
+        const lowerQuery = searchQuery.trim().toLowerCase();
+
+        const nameMatch = item.name.toLowerCase().includes(lowerQuery);
+        const shopMatch = item.shopName
+          ? item.shopName.toLowerCase().includes(lowerQuery)
+          : false;
+
+        if (!nameMatch && !shopMatch) return null;
+
+        const matchedField: "name" | "shopName" =
+          shopMatch && !nameMatch ? "shopName" : "name";
+
+        return { ...item, matchedField };
+      })
+      .filter((item): item is Item => item !== null)
+      .sort((a, b) => {
+        const rank = (item: Item) => {
+          const fields: string[] = [item.name];
+          if (item.shopName) fields.push(item.shopName);
+
+          let score = 0;
+          fields.forEach((field) => {
+            const words = field.split(/\s+/);
             words.forEach((word, index) => {
-              if (word.toLowerCase().startsWith(searchQuery)) {
-                matchCount++;
-                positionScore += 100 - index * 10;
+              const w = word.toLowerCase();
+              if (w.startsWith(searchQuery)) {
+                score += 100 - index * 10;
+              }
+              if (w === searchQuery) {
+                score += 1000;
               }
             });
+          });
+          return score;
+        };
+        return rank(b) - rank(a);
+      });
 
-            const exactMatchBonus = words.some(
-              (word) => word.toLowerCase() === searchQuery
-            )
-              ? 1000
-              : 0;
-
-            return exactMatchBonus + positionScore + matchCount * 10;
-          };
-
-          return rank(b) - rank(a);
-        });
-
-      setSuggestions(filteredSuggestions || []);
-    } else {
-      setSuggestions([]);
-    }
+    setSuggestions(filtered);
   };
 
-  const handleSuggestionClick = (suggestion: {
-    name: string;
-    objectId: string;
-  }) => {
-    const baseRoute = ["brand", "product"].includes(searchBy)
-      ? "/Brand_Product"
-      : "/Distributor_dealer";
-    window.location.href = `${baseRoute}?objectId=${suggestion.objectId}`;
-    // OR for SPA-like navigation (smoother):
-    // (window.Astro || window).navigate(`${baseRoute}?objectId=${suggestion.objectId}`);
+  const handleSuggestionClick = (item: Item) => {
+    let baseRoute = "/";
+    switch (item.type) {
+      case "brand":
+        baseRoute = "/brand";
+        break;
+      case "product":
+        baseRoute = "/product";
+        break;
+      case "dealer":
+        baseRoute = "/dealer";
+        break;
+      case "distributor":
+        baseRoute = "/distributor";
+        break;
+    }
+
+    window.location.href = `${baseRoute}/${item.slug}`;
   };
 
   return (
@@ -113,10 +179,11 @@ const SearchBar: React.FC = () => {
         value={searchBy}
         onChange={handleSearchChange}
         className="border-r border-gray-300 px-2 py-1 bg-white rounded-l-md focus:outline-none">
+        <option value="all">All</option>
         <option value="brand">Brand</option>
         <option value="product">Product</option>
         <option value="dealer">Dealer</option>
-        <option value="distributor">Distributor</option>
+        {canSeeDistributor && <option value="distributor">Distributor</option>}
       </select>
 
       <input
@@ -129,14 +196,31 @@ const SearchBar: React.FC = () => {
 
       {suggestions.length > 0 && (
         <ul className="absolute top-9 left-0 w-full bg-white text-black border border-gray-200 rounded-md shadow-md z-50">
-          {suggestions.map((s, i) => (
-            <li
-              key={i}
-              onClick={() => handleSuggestionClick(s)}
-              className="p-2 hover:bg-gray-200 cursor-pointer">
-              {s.name}
-            </li>
-          ))}
+          {suggestions.map((s, i) => {
+            const mainLabel =
+              s.matchedField === "shopName" && s.shopName ? s.shopName : s.name;
+            const secondaryLabel =
+              s.matchedField === "shopName" && s.shopName ? s.name : s.shopName;
+
+            return (
+              <li
+                key={i}
+                onClick={() => handleSuggestionClick(s)}
+                className="p-2 hover:bg-gray-200 cursor-pointer">
+                <div className="flex flex-col">
+                  <span className="font-medium">{mainLabel}</span>
+                  {secondaryLabel && (
+                    <span className="text-xs text-gray-500">
+                      {secondaryLabel}
+                    </span>
+                  )}
+                  <span className="text-[10px] text-gray-400 uppercase">
+                    {s.type}
+                  </span>
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

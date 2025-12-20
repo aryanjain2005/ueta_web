@@ -578,11 +578,11 @@ export const getProducts = async (
 export const getDealersList = async (db: DrizzleD1Database<typeof s>) =>
   db.query.businesses.findMany({
     where: eq(s.businesses.type, 'dealer'),
-    columns: { id: true, name: true },
+    columns: { id: true, name: true, shopName: true, slug: true },
   });
 
 export const getDistributorsList = async (db: DrizzleD1Database<typeof s>) =>
   db.query.businesses.findMany({
     where: eq(s.businesses.type, 'distributor'),
-    columns: { id: true, name: true },
+    columns: { id: true, name: true, shopName: true, slug: true },
   });

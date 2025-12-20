@@ -12,7 +12,7 @@ export const GET: APIRoute = async ({ locals }) => {
 
   const result = products.map((p) => ({
     name: p.name,
-    objectId: p.id,
+    slug: p.slug,
   }));
 
   return new Response(JSON.stringify(result), {

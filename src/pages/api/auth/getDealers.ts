@@ -9,10 +9,11 @@ export const GET: APIRoute = async ({ locals }) => {
   const db = drizzle(env.DB, { schema: s });
 
   const dealers = await getDealersList(db);
-
+    console.log("[API:getDealers] raw dealers from DB:", dealers);
   const result = dealers.map((d) => ({
-    name: d.name,
-    objectId: d.id,
+      name: d.name,
+      shopName: d.shopName,
+    slug: d.slug,
   }));
 
   return new Response(JSON.stringify(result), {

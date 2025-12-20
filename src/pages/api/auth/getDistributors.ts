@@ -11,8 +11,9 @@ export const GET: APIRoute = async ({ locals }) => {
   const distributors = await getDistributorsList(db);
 
   const result = distributors.map((d) => ({
-    name: d.name,
-    objectId: d.id,
+      name: d.name,
+      shopName: d.shopName,
+    slug: d.slug,
   }));
 
   return new Response(JSON.stringify(result), {

@@ -5,6 +5,8 @@ import SearchBar from "@components/SearchBar";
 // The middleware should set locals.user when JWT is valid:
 // e.g. context.locals.user = payload
 const user = Astro.locals?.user ?? null;
+const isAdmin = user?.role === "admin";
+const isDistributor = user?.role === "distributor";
 
 // TOKEN constant usage is in middleware/login/logout; Navbar only reads locals
 // Use server-side form POST to logout to ensure cookie is cleared server-side
@@ -19,7 +21,11 @@ const logoutAction = "/api/auth/logout";
         <a href="/" class="text-lg"><span class="font-bold">UETA</span></a>
 
         <div class="ml-4 hidden lg:flex items-center pr-2 gap-2">
-          <SearchBar client:load />
+          <SearchBar
+            client:load
+            isAdmin={isAdmin}
+            isDistributor={isDistributor}
+          />
         </div>
       </div>
 
@@ -31,7 +37,11 @@ const logoutAction = "/api/auth/logout";
     <MenuItems class="hidden w-full lg:w-auto mt-2 lg:flex lg:mt-0">
       <div
         class="w-fit flex lg:hidden items-center pr-2 gap-2 bg-white rounded-md">
-        <SearchBar client:load />
+        <SearchBar
+          client:load
+          isAdmin={isAdmin}
+          isDistributor={isDistributor}
+        />
       </div>
 
       <div class="lg:hidden flex items-center mt-3 gap-4">
