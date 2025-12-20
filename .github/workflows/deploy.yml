@@ -2,7 +2,7 @@ name: Deploy to Cloudflare Workers
 
 on:
   push:
-    branches: [ main ]   # adjust to your default branch
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -23,6 +23,12 @@ jobs:
 
       - name: Build Astro
         run: npm run build
+
+      # NEW: create dist/.assetsignore on CI
+      - name: Create .assetsignore for _worker.js
+        run: |
+          mkdir -p dist
+          echo "_worker.js" > dist/.assetsignore
 
       - name: Deploy with Wrangler
         uses: cloudflare/wrangler-action@v3
