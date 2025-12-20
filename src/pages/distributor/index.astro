@@ -1,0 +1,135 @@
+---
+import Container from "@components/container.astro";
+import Layout from "@layouts/Layout.astro";
+import { DDMoreInfo } from "@components/dd-moreInfo";
+import { eq } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/d1";
+import * as s from "db/schema";
+
+const queries = new URL(Astro.request.url).searchParams;
+const brandSlug = queries.get("brand");
+const productSlug = queries.get("product");
+
+// Get user from middleware-injected locals
+// @ts-ignore
+const user = Astro.locals.user;
+
+// Protect route: only distributor or admin allowed
+const isAllowed =
+  user && (user.role === "distributor" || user.type === "admin");
+
+if (!isAllowed) {
+  // Redirect to home page
+  return Astro.redirect("/", 302);
+}
+
+// @ts-ignore
+const { env } = Astro.locals.runtime;
+const db = drizzle(env.DB, {
+  schema: s,
+});
+
+const getDistributors = async () => {
+  const distributors = await db.query.businesses.findMany({
+    where: eq(s.businesses.type, "distributor"),
+    columns: {
+      name: true,
+      slug: true,
+      image: true,
+      shopName: true,
+      address: true,
+    },
+    with: {
+      contacts: {
+        columns: {
+          type: true,
+          value: true,
+        },
+      },
+      businessBrandProducts: {
+        with: {
+          product: {
+            columns: {
+              slug: true,
+              image: true,
+            },
+          },
+          brand: {
+            columns: {
+              slug: true,
+              image: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  return distributors
+    .filter((d) => {
+      return d.businessBrandProducts.some((bp) => {
+        const matchesProduct = productSlug
+          ? bp.product.slug === productSlug
+          : true;
+        const matchesBrand = brandSlug ? bp.brand.slug === brandSlug : true;
+        return matchesProduct && matchesBrand;
+      });
+    })
+    .map((d) => ({
+      name: d.name,
+      slug: d.slug,
+      image: d.image,
+      shopName: d.shopName,
+      address: d.address,
+      contacts: d.contacts,
+      brand: d.businessBrandProducts.find((bp) => bp.brand.slug === brandSlug)
+        ?.brand.image,
+      product: d.businessBrandProducts.find(
+        (bp) => bp.product.slug === productSlug
+      )?.product.image,
+    }));
+};
+const distributors = await getDistributors();
+const brand = distributors.length > 0 && brandSlug && distributors[0]?.brand;
+const product =
+  distributors.length > 0 && productSlug && distributors[0]?.product;
+---
+
+<Layout title="Distributors" bread={["distributors"]}>
+  <Container>
+    <div class="space-y-6 p-4">
+      <div class="flex gap-3 items-center justify-between">
+        <p class="text-4xl">Distributors</p>
+        <div class="flex gap-3 items-center">
+          {
+            brand && (
+              <div class="w-20 sm:w-32 rounded-md drop-shadow-md overflow-hidden">
+                <img src={brand} class="object-cover" />
+              </div>
+            )
+          }
+          {
+            product && (
+              <div class="w-20 sm:w-32 rounded-md drop-shadow-md overflow-hidden">
+                <img src={product} class="object-cover" />
+              </div>
+            )
+          }
+        </div>
+      </div>{
+        distributors.length === 0 ? (
+          <p>No distributors found</p>
+        ) : (
+          <div class="grid grid-cols-1 sm:grid-cols-2  gap-4">
+            {distributors.map((distributor) => (
+              <DDMoreInfo
+                client:load
+                bussiness={distributor}
+                type="distributor"
+              />
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </Container>
+</Layout>

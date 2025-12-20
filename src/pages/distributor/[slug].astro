@@ -1,0 +1,91 @@
+---
+import ContactButton from "@components/contact-button";
+import DdInfo from "@components/dd-info.astro";
+import ProdList from "@components/prod-list";
+import ScrollView from "@components/ui/scroll-view.astro";
+import Layout from "@layouts/Layout.astro";
+
+import { drizzle } from "drizzle-orm/d1";
+import * as s from "db/schema";
+import { getDistributor } from "db/server";
+
+// Get user from middleware-injected locals
+// @ts-ignore
+const user = Astro.locals.user;
+
+// Protect route: only distributor or admin allowed
+const isAllowed =
+  user && (user.role === "distributor" || user.type === "admin");
+
+if (!isAllowed) {
+  // Redirect to home page
+  return Astro.redirect("/", 302);
+}
+
+// @ts-ignore
+const { env } = Astro.locals.runtime;
+console.log(env.DB);
+const db = drizzle(env.DB, {
+  schema: s,
+});
+const getDealerBySlug = async (slug: string) => {
+  try {
+    const entry = await getDistributor(db, slug);
+    return entry;
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
+};
+const { slug } = Astro.params;
+if (!slug) return Astro.redirect("/404");
+const entry = await getDealerBySlug(slug);
+if (!entry) return Astro.redirect("/404");
+---
+
+<Layout title={entry.name} bread={["dealer", entry.name]}>
+  <DdInfo name={entry.name} image={entry.image}>
+    <div class="space-y-2 sm:space-y-4">
+      <p class="text-xl">
+        <span class="font-bold">Name:</span>
+        {entry.shopName}
+      </p>{
+        entry.address && (
+          <p class="text-xl">
+            <span class="font-bold">Address:</span>
+            {entry.address}
+          </p>
+        )
+      }
+      <div
+        class:list={["flex gap-2", entry.contact.length > 2 ? "flex-col" : ""]}>
+        {
+          entry.contact.map((contact) => (
+            <ContactButton size="large" contact={contact} />
+          ))
+        }
+      </div>
+      {
+        entry.location && (
+          <div class="w-full pt-4 sm:pt-6">
+            <iframe
+              class="w-full sm:w-[300px] h-[200px] sm:h-[200px]"
+              src="https://maps.google.com/maps?q=31.7814258,76.9983784&hl=en&z=14&output=embed"
+            />
+          </div>
+        )
+      }
+    </div>
+  </DdInfo>{
+    entry.shopImages && entry.shopImages.length > 0 && (
+      <ScrollView class="mx-auto">
+        {entry.shopImages.map((image) => (
+          <div class="h-[100px] sm:h-[160px] min-w-fit">
+            <img src={image} class="rounded-md h-full" loading="lazy" />
+          </div>
+        ))}
+      </ScrollView>
+    )
+  }
+  <ProdList client:load brands={entry.brands} />
+</Layout>

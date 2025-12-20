@@ -1,0 +1,19 @@
+---
+import DDItem from '@components/cards/dd-item'
+import Link from './ui/link.astro'
+import ScrollView from './ui/scroll-view.astro'
+
+interface Props {
+  class?: string
+  heading?: string
+  list: any[]
+  id: string
+  showMore?: {
+    text: string
+    href: string
+  }
+  type: string
+}
+
+const { class: className, heading, list, showMore, type } = Astro.props
+---

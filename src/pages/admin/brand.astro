@@ -1,0 +1,74 @@
+---
+import AdminLayout from '@layouts/admin-layout.astro'
+import DataTable from '@components/table/brand'
+import { drizzle } from 'drizzle-orm/d1'
+import * as s from 'db/schema'
+
+// @ts-ignore
+const { env } = Astro.locals.runtime
+const db = drizzle(env.DB, {
+  schema: s
+})
+const getBrands = async () => {
+  const res = await db.query.brands.findMany({
+    columns: {
+      id: true,
+      name: true,
+      description: true,
+      image: true,
+      slug: true
+    },
+    with: {
+      productBrands: {
+        with: {
+          product: {
+            columns: {
+              id: true,
+              name: true,
+              description: true,
+              slug: true,
+              image: true
+            }
+          }
+        }
+      }
+    }
+  })
+  const brands = res.map((brand) => {
+    return {
+      id: brand.id,
+      name: brand.name,
+      description: brand.description,
+      image: brand.image,
+      slug: brand.slug,
+      products: brand.productBrands.map((productBrand) => {
+        return {
+          id: productBrand.product.id,
+          name: productBrand.product.name,
+          description: productBrand.product.description,
+          slug: productBrand.product.slug,
+          image: productBrand.product.image
+        }
+      })
+    }
+  })
+  return brands
+}
+const totalProducts = await db.query.products.findMany({
+  columns: {
+    id: true,
+    name: true,
+    description: true,
+    image: true,
+    slug: true
+  }
+})
+const brands = await getBrands()
+---
+
+<AdminLayout title='UETA Admin | Brand'>
+  <div class='w-full px-4 overflow-x-auto py-8'>
+    <p class='font-bold text-3xl'>Brands</p>
+    <DataTable client:load data={brands} initProducts={totalProducts} />
+  </div>
+</AdminLayout>

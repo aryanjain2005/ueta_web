@@ -1,0 +1,31 @@
+---
+interface Props {
+  name: string
+  image: string | null
+  class?: string
+}
+
+const { name, image, class: className } = Astro.props
+---
+
+<div
+  class:list={[
+    'w-full max-md:flex-col flex px-8 md:px-14 py-8 gap-10 md:gap-20 place-items-center',
+    className
+  ]}>
+  <div class='space-y-2 md:space-y-8 grow'>
+    <h2 class='text-4xl font-bold tracking-tight max-w-[400px]'>
+      {name}
+    </h2>
+    <slot />
+  </div>{
+    image && (
+      <img
+        src={image || '/imgg.png'}
+        alt={name}
+        class='rounded-md w-full md:min-w-[300px] lg:w-[400px]'
+        loading='lazy'
+      />
+    )
+  }
+</div>

@@ -1,0 +1,136 @@
+---
+import Container from "@components/container.astro";
+import PbList from "@components/pb-list";
+import Layout from "@layouts/Layout.astro";
+import { getBrands, getProducts } from "db/server";
+import { drizzle } from "drizzle-orm/d1";
+import * as s from "db/schema";
+
+// @ts-ignore
+const { env } = Astro.locals.runtime;
+const db = drizzle(env.DB, {
+  schema: s,
+});
+const brands = await getBrands(db);
+const products = await getProducts(db);
+// await db.insert(s.users).values({
+//   role: 'admin',
+//   username: 'p',
+//   password: 'p'
+// })
+Astro.response.headers.set("Cache-Control", "public, max-age=60, s-maxage=0");
+// @ts-ignore
+
+const user = Astro.locals.user;
+// Treat distributor or admin as "can see distributors"
+const canSeeDistributors =
+  user && (user.role === "distributor" || user.type === "admin");
+---
+
+<Layout title="">
+  <Container class="py-8 px-2 flex flex-col gap-16">
+    <PbList
+      client:load
+      list={brands.map((b) => ({
+        ...b,
+        dealers: [],
+        distributors: [],
+      }))}
+      type="brand"
+    />
+    <div
+      class="bg-gradient-to-r from-transparent via-[#003da6] to-transparent h-0.5 mx-8">
+    </div>
+    <PbList
+      client:load
+      list={products.map((p) => ({
+        ...p,
+        dealers: [],
+        distributors: [],
+      }))}
+      type="product"
+    />
+{ 
+  canSeeDistributors ? (
+    <div class="flex-row flex justify-between items-center gap-3 px-16">
+      <!-- Dealers: always visible when logged in with this layout -->
+      <a
+        href="/dealer"
+        class="grow text-center bg-black/70 h-20 p-3 min-w-[30vw] min-h-[30vh] relative aspect-auto">
+        <img
+          src="/media/business.jpeg"
+          class="w-full h-full absolute top-0 left-0 -z-10"
+        />
+        <p class="w-full h-full font-bold text-xl text-white">Dealers</p>
+      </a>
+
+      <!-- Distributors: only for distributor role or admin type -->
+      <a
+        href="/distributor"
+        class="grow text-center bg-black/70 h-20 p-3 relative min-w-[30vw] min-h-[30vh] aspect-auto">
+        <img
+          src="/media/business.jpeg"
+          class="w-full h-full absolute top-0 left-0 -z-10"
+        />
+        <p class="w-full h-full font-bold text-xl text-white">Distributor</p>
+      </a>
+    </div>
+  ) : (
+    // Fallback: user not distributor/admin or not logged in
+    <div class="flex-col flex justify-between items-center gap-3 px-16">
+      <!-- Dealers: still visible even if no user -->
+      <a
+        href="/dealer"
+        class="grow text-center bg-black/70 h-20 p-3 min-w-[30vw] min-h-[30vh] relative aspect-auto">
+        <img
+          src="/media/business.jpeg"
+          class="w-full h-full absolute top-0 left-0 -z-10"
+        />
+        <p class="w-full h-full font-bold text-xl text-white">Dealers</p>
+      </a>
+    </div>
+  )
+}
+
+
+    <!-- <div class='flex-col flex justify-between items-center gap-3 px-16'>
+      <a
+        href='/dealer'
+        class='grow text-center bg-black/70 h-20 p-3 min-w-[30vw] min-h-[30vh] relative aspect-auto'>
+        <img
+          src='/media/business.jpeg'
+          class='w-full h-full absolute top-0 left-0 -z-10'
+        />
+
+        <p class='w-full h-full font-bold text-xl text-white'>Dealers</p>
+      </a>
+    </div> -->
+
+    <!-- <div class='max-md:flex-col flex justify-between items-center gap-3 px-16'>
+      <a
+        href='/dealer'
+        class='grow text-center bg-black/70 h-20 p-3 relative min-w-[50vw] aspect-auto'>
+        <img
+          src='/media/business.jpeg'
+          class='w-full h-full absolute top-0 left-0 -z-10'
+        />
+
+        <p class='w-full h-full font-bold text-xl text-white'>Dealers</p>
+      </a>
+    </div>
+    {
+      user && (
+        <a
+          href='/Distributor'
+          class='grow text-center bg-black/70 h-20 p-3 relative min-w-[50vw] aspect-auto'>
+          <img
+            src='/media/business.jpeg'
+            class='w-full h-full absolute top-0 left-0 -z-10'
+          />
+
+          <p class='w-full h-full font-bold text-xl text-white'>Distributor</p>
+        </a>
+      )
+    } -->
+  </Container>
+</Layout>

@@ -1,0 +1,5 @@
+---
+Astro.response.headers.set('Set-Cookie', 'token=; HttpOnly; Max-Age=0; Path=/')
+Astro.response.status = 302
+Astro.response.headers.set('Location', '/')
+---
