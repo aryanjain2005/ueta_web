@@ -1,15 +1,15 @@
 ---
 interface Props {
-  class?: string
+  class?: string;
 }
 
-const { class: className } = Astro.props
+const { class: className } = Astro.props;
 ---
 
 <div
   class:list={[
-    'flex gap-8 md:gap-12 w-fit max-w-full overflow-x-auto p-2',
-    className
+    "flex gap-8 md:gap-12 w-fit max-w-full overflow-x-auto p-2",
+    className,
   ]}>
   <slot />
 </div>

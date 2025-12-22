@@ -56,9 +56,9 @@ const makeTitle = title ? title + " | " + "UETA" : "UETA";
       }}
     />
   </head>
-  <body class="min-h-screen flex flex-col">
+  <body class="min-h-screen w-full flex flex-col">
     <Navbar />
-    <main>
+    <main class="w-full flex-1">
       <Breadcrumbs bread={bread} />
       <slot />
     </main>

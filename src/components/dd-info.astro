@@ -1,5 +1,15 @@
 ---
 interface Props {
+  name: string;
+  image: string | null;
+  class?: string;
+}
+
+const { name, image, class: className } = Astro.props;
+---
+
+<!-- ---
+interface Props {
   name: string
   image: string | null
   class?: string
@@ -26,6 +36,31 @@ const { name, image, class: className } = Astro.props
         class='rounded-md w-full md:min-w-[300px] lg:w-[400px]'
         loading='lazy'
       />
+    )
+  }
+</div> -->
+<div
+  class:list={[
+    "w-full grid grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] gap-6 sm:gap-8 md:gap-12 px-4 sm:px-8 md:px-14 py-8 items-center",
+    className,
+  ]}>
+  <!-- LEFT column: details + map -->
+  <div class="space-y-2 sm:space-y-4 self-center">
+    <!-- name, address, contacts, map (see below) -->
+    <slot />
+  </div>
+
+  <!-- RIGHT column: photo -->
+  {
+    image && (
+      <div class="w-full flex justify-center md:justify-end self-center">
+        <img
+          src={image || "/imgg.png"}
+          alt={name}
+          class="rounded-md w-full max-w-[260px] sm:max-w-[300px] lg:max-w-[360px] object-cover"
+          loading="lazy"
+        />
+      </div>
     )
   }
 </div>
