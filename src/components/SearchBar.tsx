@@ -13,6 +13,7 @@ const SearchBar: React.FC<Props> = ({
   const canSeeDistributor = isAdmin || isDistributor;
   const [searchBy, setSearchBy] = useState<string>("all");
   const [query, setQuery] = useState<string>("");
+
   type BaseItem = {
     name: string;
     slug: string;
@@ -31,6 +32,20 @@ const SearchBar: React.FC<Props> = ({
     dealer: BaseItem[];
     distributor: BaseItem[];
   } | null>(null);
+
+  // ---- NEW: dropdown state & options ----
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const options = [
+    { value: "all", label: "All" },
+    { value: "brand", label: "Brand" },
+    { value: "product", label: "Product" },
+    { value: "dealer", label: "Dealer" },
+    ...(canSeeDistributor
+      ? [{ value: "distributor", label: "Distributor" as const }]
+      : []),
+  ];
+  const currentOption = options.find((o) => o.value === searchBy) ?? options[0];
+  // ---------------------------------------
 
   useEffect(() => {
     const fetchData = async () => {
@@ -58,13 +73,13 @@ const SearchBar: React.FC<Props> = ({
             name: d.name,
             slug: d.slug,
             type: "dealer",
-            shopName: d.shopName, // ✅ matches columns: { shopName: true }
+            shopName: d.shopName,
           })),
           distributor: distributorsRes.map((d: any) => ({
             name: d.name,
             slug: d.slug,
             type: "distributor",
-            shopName: d.shopName, // ✅
+            shopName: d.shopName,
           })),
         });
       } catch (error) {
@@ -75,8 +90,7 @@ const SearchBar: React.FC<Props> = ({
     fetchData();
   }, []);
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = event.target.value;
+  const handleSearchChange = (value: string) => {
     if (value === "distributor" && !canSeeDistributor) {
       setSearchBy("all");
     } else {
@@ -95,7 +109,7 @@ const SearchBar: React.FC<Props> = ({
       return;
     }
 
-    let pool: Item[] = [];
+    let pool: BaseItem[] = [];
 
     if (searchBy === "all") {
       pool = [
@@ -175,23 +189,55 @@ const SearchBar: React.FC<Props> = ({
 
   return (
     <div className="relative flex items-center bg-white text-black rounded-md px-2">
-      <select
-        value={searchBy}
-        onChange={handleSearchChange}
-        className="border-r border-gray-300 px-2 py-1 bg-white rounded-l-md focus:outline-none">
-        <option value="all">All</option>
-        <option value="brand">Brand</option>
-        <option value="product">Product</option>
-        <option value="dealer">Dealer</option>
-        {canSeeDistributor && <option value="distributor">Distributor</option>}
-      </select>
+      {/* Custom dropdown instead of <select> */}
+      <div className="relative inline-block">
+        <button
+          type="button"
+          onClick={() => setDropdownOpen((o) => !o)}
+          className="inline-flex items-center gap-1 px-2 py-1 bg-white rounded-l-md border border-gray-300 text-sm w-auto max-w-[8rem]">
+          <span className="whitespace-nowrap">{currentOption.label}</span>
+          <svg
+            className={`w-3 h-3 transition-transform ${
+              dropdownOpen ? "rotate-180" : ""
+            }`}
+            viewBox="0 0 20 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M5 7.5L10 12.5L15 7.5"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+
+        {dropdownOpen && (
+          <ul className="absolute left-0 top-full z-50 mt-1 bg-white border border-gray-200 rounded-md shadow-lg text-sm inline-block min-w-max">
+            {options.map((opt) => (
+              <li
+                key={opt.value}
+                onClick={() => {
+                  handleSearchChange(opt.value);
+                  setDropdownOpen(false);
+                }}
+                className={`px-3 py-1.5 cursor-pointer hover:bg-gray-100 whitespace-nowrap ${
+                  opt.value === searchBy ? "bg-gray-100 font-medium" : ""
+                }`}>
+                {opt.label}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
 
       <input
         type="text"
         placeholder={`Search ${searchBy}`}
         value={query}
         onChange={handleInputChange}
-        className="py-1 px-2 w-48 focus:outline-none"
+        className="py-1 px-2 w-48 focus:outline-none border border-l-0 border-gray-300 rounded-r-md"
       />
 
       {suggestions.length > 0 && (
