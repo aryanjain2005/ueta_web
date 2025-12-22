@@ -188,14 +188,13 @@ const SearchBar: React.FC<Props> = ({
   };
 
   return (
-    <div className="relative flex items-center bg-white text-black rounded-md px-2">
-      {/* Custom dropdown instead of <select> */}
+    <div className="relative flex items-center bg-white text-black rounded-md pl-2 min-w-[100px] w-full">
       <div className="relative inline-block">
         <button
           type="button"
           onClick={() => setDropdownOpen((o) => !o)}
-          className="inline-flex items-center gap-1 px-2 py-1 bg-white rounded-l-md border border-gray-300 text-sm w-auto max-w-[8rem]">
-          <span className="whitespace-nowrap">{currentOption.label}</span>
+          className="inline-flex items-center gap-1 px-2 py-1 bg-white rounded-l-md  text-sm w-auto max-w-[8rem]">
+          {/* <span className="whitespace-nowrap">{currentOption.label}</span> */}
           <svg
             className={`w-3 h-3 transition-transform ${
               dropdownOpen ? "rotate-180" : ""
@@ -237,7 +236,7 @@ const SearchBar: React.FC<Props> = ({
         placeholder={`Search ${searchBy}`}
         value={query}
         onChange={handleInputChange}
-        className="py-1 px-2 w-48 focus:outline-none border border-l-0 border-gray-300 rounded-r-md"
+        className="py-1 px-2 w-40 md:w-60 lg:w-100 focus:outline-none border border-l-0 border-gray-300 rounded-r-md"
       />
 
       {suggestions.length > 0 && (
