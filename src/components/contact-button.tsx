@@ -66,12 +66,14 @@ import { Facebook, Instagram, Phone } from "lucide-react";
 const ContactButton = ({
   contact,
   size = "normal",
+  showLabel = false, // NEW
 }: {
   contact: {
     type: "phone" | "email" | "whatsapp" | "facebook" | "instagram";
     value: string;
   };
   size?: "normal" | "large";
+  showLabel?: boolean;
 }) => {
   const { toast } = useToast();
 
@@ -100,7 +102,7 @@ const ContactButton = ({
       href={href}
       target={isExternal ? "_blank" : undefined}
       rel={isExternal ? "noopener noreferrer" : undefined}
-      className="flex items-center cursor-pointer"
+      className="inline-flex items-center gap-1 cursor-pointer text-sm"
       onContextMenu={(e) => {
         e.preventDefault();
         navigator.clipboard.writeText(contact.value).then(() =>
@@ -109,23 +111,25 @@ const ContactButton = ({
           })
         );
       }}>
-      <div className="place-content-center p-1">
+      <span className="place-content-center p-1">
         {contact.type === "phone" ? (
           <Phone className={iconSize} />
         ) : contact.type === "email" ? (
+          /* same email svg as before */
           <svg
             className={iconSize}
             viewBox="0 0 26 21"
             fill="none"
             xmlns="http://www.w3.org/2000/svg">
             <path
-              d="M2.92039 20.2701C2.22739 20.2701 1.63414 20.0234 1.14064 19.5299C0.647141 19.0364 0.400391 18.4431 0.400391 17.7501V2.63011C0.400391 1.93711 0.647141 1.34386 1.14064 0.850357C1.63414 0.356857 2.22739 0.110107 2.92039 0.110107H23.0804C23.7734 0.110107 24.3666 0.356857 24.8601 0.850357C25.3536 1.34386 25.6004 1.93711 25.6004 2.63011V17.7501C25.6004 18.4431 25.3536 19.0364 24.8601 19.5299C24.3666 20.0234 23.7734 20.2701 23.0804 20.2701H2.92039ZM13.0004 11.4501L2.92039 5.15011V17.7501H23.0804V5.15011L13.0004 11.4501ZM13.0004 8.93011L23.0804 2.63011H2.92039L13.0004 8.93011ZM2.92039 5.15011V2.63011V17.7501V5.15011Z"
+              d="M2.92039 20.2701C2.22739 20.2701 1.63414 20.0234 1.14064 19.5299C0.647141 19.0364 0.400391 18.4431 0.400391 17.7501V2.63011C0.400391 1.93711 0.647141 1.34386 1.14064 0.850357C1.63414 0.356857 2.22739 0.110107 2.92039 0.110107H23.0804C23.7734 0.110107 24.3666 0.356857 24.8601 0.850357C25.3536 1.34386 25.6004 1.93711 25.6004 2.63011V17.7501C25.6004 18.4431 25.3536 19.0364 24.8601 19.5299C24.3666 20.0234 23.7734 20.2701 23.0804 20.2701H2.92039ZM13.0004 11.4501L2.92039 5.15011V17.7501H23.0804V5.15011L13.0004 11.4501ZM13.0004 8.93011L23.0804 2.63011H2.92039L13.0004 8.93011Z"
               fill="black"
             />
           </svg>
         ) : contact.type === "whatsapp" ? (
+          /* same whatsapp svg as before */
           <svg
-            className={iconSize}
+            className=" h-4 w-4"
             viewBox="0 0 25 26"
             fill="none"
             xmlns="http://www.w3.org/2000/svg">
@@ -141,7 +145,9 @@ const ContactButton = ({
         ) : contact.type === "instagram" ? (
           <Instagram className={iconSize} />
         ) : null}
-      </div>
+      </span>
+
+      {showLabel && <span>{contact.value}</span>}
     </a>
   );
 };

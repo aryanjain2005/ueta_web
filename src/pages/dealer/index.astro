@@ -1,65 +1,65 @@
 ---
-import Container from '@components/container.astro'
-import Layout from '@layouts/Layout.astro'
-import { DDMoreInfo } from '@components/dd-moreInfo'
-import { eq } from 'drizzle-orm'
-import { drizzle } from 'drizzle-orm/d1'
-import * as s from 'db/schema'
+import Container from "@components/container.astro";
+import Layout from "@layouts/Layout.astro";
+import { DDMoreInfo } from "@components/dd-moreInfo";
+import { eq } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/d1";
+import * as s from "db/schema";
 
-const queries = new URL(Astro.request.url).searchParams
-const brandSlug = queries.get('brand')
-const productSlug = queries.get('product')
+const queries = new URL(Astro.request.url).searchParams;
+const brandSlug = queries.get("brand");
+const productSlug = queries.get("product");
 
 // @ts-ignore
-const { env } = Astro.locals.runtime
+const { env } = Astro.locals.runtime;
 const db = drizzle(env.DB, {
-  schema: s
-})
+  schema: s,
+});
 
 const getDealers = async () => {
   const dealers = await db.query.businesses.findMany({
-    where: eq(s.businesses.type, 'dealer'),
+    where: eq(s.businesses.type, "dealer"),
     columns: {
       name: true,
       slug: true,
       image: true,
       shopName: true,
-      address: true
+      address: true,
     },
     with: {
       contacts: {
         columns: {
           type: true,
-          value: true
-        }
+          value: true,
+        },
       },
       businessBrandProducts: {
         with: {
           product: {
             columns: {
               slug: true,
-              image: true
-            }
+              image: true,
+            },
           },
           brand: {
             columns: {
               slug: true,
-              image: true
-            }
-          }
-        }
-      }
-    }
-  })
+              image: true,
+            },
+          },
+        },
+      },
+    },
+  });
   return dealers
     .filter((d) => {
       return d.businessBrandProducts.some((bp) => {
         const matchesProduct = productSlug
           ? bp.product.slug === productSlug
-          : true
-        const matchesBrand = brandSlug ? bp.brand.slug === brandSlug : true
-        return matchesProduct && matchesBrand
-      })
+          : true;
+        const matchesBrand = brandSlug ? bp.brand.slug === brandSlug : true;
+        return matchesProduct && matchesBrand;
+      });
     })
     .map((d) => ({
       name: d.name,
@@ -72,31 +72,31 @@ const getDealers = async () => {
         ?.brand.image,
       product: d.businessBrandProducts.find(
         (bp) => bp.product.slug === productSlug
-      )?.product.image
-    }))
-}
-const dealers = await getDealers()
-const brand = dealers.length > 0 && brandSlug && dealers[0]?.brand
-const product = dealers.length > 0 && productSlug && dealers[0]?.product
+      )?.product.image,
+    }));
+};
+const dealers = await getDealers();
+const brand = dealers.length > 0 && brandSlug && dealers[0]?.brand;
+const product = dealers.length > 0 && productSlug && dealers[0]?.product;
 ---
 
-<Layout title='Dealer' bread={['dealers']}>
+<Layout title="Dealer" bread={["dealers"]}>
   <Container>
-    <div class='space-y-6 p-4'>
-      <div class='flex gap-3 items-center justify-between'>
-        <p class='text-4xl'>Dealers</p>
-        <div class='flex gap-3 items-center'>
+    <div class="space-y-6 p-4">
+      <div class="flex gap-3 items-center justify-between">
+        <p class="text-4xl">Dealers</p>
+        <div class="flex gap-3 items-center">
           {
             brand && (
-              <div class='w-24 sm:w-32 rounded-md drop-shadow-md overflow-hidden'>
-                <img src={brand} class='object-cover' />
+              <div class="w-24 sm:w-32 rounded-md drop-shadow-md overflow-hidden">
+                <img src={brand} class="object-cover" />
               </div>
             )
           }
           {
             product && (
-              <div class='w-24 sm:w-32 rounded-md drop-shadow-md overflow-hidden'>
-                <img src={product} class='object-cover' />
+              <div class="w-24 sm:w-32 rounded-md drop-shadow-md overflow-hidden">
+                <img src={product} class="object-cover" />
               </div>
             )
           }
@@ -105,9 +105,9 @@ const product = dealers.length > 0 && productSlug && dealers[0]?.product
         dealers.length === 0 ? (
           <p>No dealers found</p>
         ) : (
-          <div class='grid grid-cols-1 sm:grid-cols-2  gap-4'>
+          <div class="grid grid-cols-2  gap-4">
             {dealers.map((dealer) => (
-              <DDMoreInfo client:load bussiness={dealer} type='dealer' />
+              <DDMoreInfo client:load bussiness={dealer} type="dealer" />
             ))}
           </div>
         )

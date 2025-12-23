@@ -24,14 +24,14 @@ export const DDMoreInfo = ({
         // redirect to the bussiness page
         window.location.pathname = `/${type}/${bussiness.slug}`;
       }}
-      className="w-full p-4">
-      <div className="max-sm:flex-col flex gap-3 items-center p-3">
-        <div className="w-32 sm:w-64 rounded-md drop-shadow-md overflow-hidden">
+      className="w-full min-h-[150px] flex flex-col justify-between p-4">
+      <div className="max-sm:flex-col flex gap-3 items-center">
+        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-md drop-shadow-md overflow-hidden flex-shrink-0">
           <img src={bussiness.image || ""} className="object-cover" />
         </div>
         <CardContent>
           <div className="space-y-2">
-            <CardTitle className="text-xl">{bussiness.shopName}</CardTitle>
+            <CardTitle className="text-xl ">{bussiness.shopName}</CardTitle>
             <CardDescription>{bussiness.address}</CardDescription>
             {bussiness.contacts.map((contact) => (
               <ContactButton
