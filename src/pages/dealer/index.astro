@@ -105,7 +105,7 @@ const product = dealers.length > 0 && productSlug && dealers[0]?.product;
         dealers.length === 0 ? (
           <p>No dealers found</p>
         ) : (
-          <div class="grid grid-cols-2  gap-4">
+          <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {dealers.map((dealer) => (
               <DDMoreInfo client:load bussiness={dealer} type="dealer" />
             ))}

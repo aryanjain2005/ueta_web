@@ -24,23 +24,40 @@ export const DDMoreInfo = ({
         // redirect to the bussiness page
         window.location.pathname = `/${type}/${bussiness.slug}`;
       }}
-      className="w-full min-h-[150px] flex flex-col justify-between p-4">
-      <div className="max-sm:flex-col flex gap-3 items-center">
-        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-md drop-shadow-md overflow-hidden flex-shrink-0">
-          <img src={bussiness.image || ""} className="object-cover" />
+      className="w-full h-[250px] sm:h-[180px] flex flex-col justify-center md:p-4 p-3">
+      <div className="flex max-sm:flex-col max-sm:items-center sm:items-center gap-3 items-center">
+        <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-32 md:h-32 rounded-md drop-shadow-md overflow-hidden flex-shrink-0">
+          <img
+            src={bussiness.image || ""}
+            className="w-full h-full object-cover"
+          />
         </div>
-        <CardContent>
+        <CardContent className="p-0 flex-1 flex flex-col max-sm:justify-center sm:justify-between">
           <div className="space-y-2">
-            <CardTitle className="text-xl ">{bussiness.shopName}</CardTitle>
-            <CardDescription>{bussiness.address}</CardDescription>
-            {bussiness.contacts.map((contact) => (
-              <ContactButton
-                key={contact.value}
-                size="large"
-                contact={contact}
-              />
-            ))}
+            <CardTitle className="text-xl flex flex-col max-sm:items-center">
+              {bussiness.shopName}
+            </CardTitle>
+            <CardDescription
+              className={
+                "text-xs sm:text-sm " +
+                (bussiness.contacts.length > 0
+                  ? "line-clamp-2"
+                  : "line-clamp-4")
+              }>
+              {bussiness.address}
+            </CardDescription>
           </div>
+          {bussiness.contacts.length > 0 && (
+            <div className="mt-2 flex flex-row flex-wrap justify-center sm:justify-start gap-0.5 text-xs sm:text-sm">
+              {bussiness.contacts.map((contact) => (
+                <ContactButton
+                  key={contact.value}
+                  size="normal"
+                  contact={contact}
+                />
+              ))}
+            </div>
+          )}
         </CardContent>
       </div>
     </Card>
