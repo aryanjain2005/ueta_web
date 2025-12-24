@@ -34,7 +34,7 @@ export const DDMoreInfo = ({
         </div>
         <CardContent className="p-0 flex-1 flex flex-col max-sm:justify-center sm:justify-between">
           <div className="space-y-2">
-            <CardTitle className="text-xl flex flex-col max-sm:items-center">
+            <CardTitle className="text-xl text-center sm:text-left flex flex-col max-sm:items-center">
               {bussiness.shopName}
             </CardTitle>
             <CardDescription
