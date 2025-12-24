@@ -24,7 +24,7 @@ export const DDMoreInfo = ({
         // redirect to the bussiness page
         window.location.pathname = `/${type}/${bussiness.slug}`;
       }}
-      className="w-full h-[250px] sm:h-[180px] flex flex-col justify-center md:p-4 p-3">
+      className="w-full h-[280px] sm:h-[180px] flex flex-col justify-center md:p-4 p-3">
       <div className="flex max-sm:flex-col max-sm:items-center sm:items-center gap-3 items-center">
         <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-32 md:h-32 rounded-md drop-shadow-md overflow-hidden flex-shrink-0">
           <img
@@ -42,7 +42,7 @@ export const DDMoreInfo = ({
                 "text-xs sm:text-sm " +
                 (bussiness.contacts.length > 0
                   ? "line-clamp-2"
-                  : "line-clamp-4")
+                  : "line-clamp-3")
               }>
               {bussiness.address}
             </CardDescription>
