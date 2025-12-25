@@ -66,8 +66,8 @@ const ProdList = ({ brands }: Props) => {
 
   return (
     <div className="w-full px-8 md:px-14 py-8">
-      <div className="max-sm:flex-col flex w-full justify-between sm:px-8 py-2 gap-2 md:gap-4 max-sm:items-end">
-        <p className="text-4xl font-extrabold font-gr max-sm:w-full">
+      <div className="max-sm:flex-col flex w-full justify-between sm:pr-8 py-2 gap-2 md:gap-4 max-sm:items-end">
+        <p className="text-4xl font-extrabold font-gr max-sm:w-full max-[470px]:text-3xl">
           Products With Brand
         </p>
         <Dialog>
@@ -153,38 +153,42 @@ const ProdList = ({ brands }: Props) => {
           </DialogContent>
         </Dialog>
       </div>
-      <div className="w-full flex-col flex px-8 md:px-14 py-8 gap-10 md:gap-20 place-items-center">
+      <div className="w-full flex-col flex py-8 gap-10 md:gap-20 place-items-center">
         {Object.values(filtered).map((brand) => {
           const extendedList = brand.products.slice(4);
           return (
             <div className="w-full space-y-1">
-              <div className="flex items-center justify-center w-[100px]  ">
-                <img
-                  src={brand.image || "/imgg.png"}
-                  alt={brand.name}
-                  className="rounded-md  object-cover"
-                  loading="lazy"
-                />
-              </div>
-              <div className="w-full flex flex-wrap gap-8 md:gap-10 ">
-                {brand.products.slice(0, 4).map((product) => (
-                  <PbItem
-                    type="product"
-                    size="normal"
-                    key={product.slug}
-                    pb={product}
+              <div className="w-full flex items-center justify-center">
+                <div className="flex items-center justify-center w-[100px] sm:w-[160px] h-auto pb-5">
+                  <img
+                    src={brand.image || "/imgg.png"}
+                    alt={brand.name}
+                    className="sm:w- rounded-md object-cover"
+                    loading="lazy"
                   />
-                ))}
-                {extendedList.length > 0 &&
-                  extendedList.map((product) => (
+                </div>
+              </div>
+              <div className="w-full flex max-sm:flex-col max-sm:justify-center">
+                <div className="w-full flex flex-wrap justify-center md:justify-start gap-8 md:gap-10">
+                  {brand.products.slice(0, 4).map((product) => (
                     <PbItem
-                      size="normal"
+                      type="product"
+                      size="dd"
                       key={product.slug}
                       pb={product}
-                      type="product"
-                      className={`extended-list-prods-${brand.slug} hidden`}
                     />
                   ))}
+                  {extendedList.length > 0 &&
+                    extendedList.map((product) => (
+                      <PbItem
+                        size="dd"
+                        key={product.slug}
+                        pb={product}
+                        type="product"
+                        className={`extended-list-prods-${brand.slug} hidden`}
+                      />
+                    ))}
+                </div>
               </div>
               {extendedList.length > 0 && (
                 <ShowMore

@@ -48,11 +48,11 @@ export const DDMoreInfo = ({
             </CardDescription>
           </div>
           {bussiness.contacts.length > 0 && (
-            <div className="mt-2 flex flex-row flex-wrap justify-center sm:justify-start gap-0.5 text-xs sm:text-sm">
+            <div className="mt-2 flex flex-row items-center justify-center sm:justify-start gap-0.5 text-[10px] sm:text-xs whitespace-nowrap overflow-hidden">
               {bussiness.contacts.map((contact) => (
                 <ContactButton
                   key={contact.value}
-                  size="normal"
+                  size="small" // uses the tiny h-2.5 w-2.5 icons
                   contact={contact}
                 />
               ))}
