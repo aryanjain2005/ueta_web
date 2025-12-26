@@ -3,6 +3,7 @@ import { ShowMore } from "@components/showmore";
 import { useState } from "react";
 import { DDListDialog } from "./dialog-list";
 import type { Brand, Product } from "types";
+import DdInfo from "./dd-info.astro";
 
 type Props = {
   size?: "normal" | "small";
@@ -60,7 +61,7 @@ const PBList = ({
         </DDListDialog>
       );
     }
-    return <PBItem key={pb.slug} pb={pb} size={size} type={type} />;
+    return <PBItem key={pb.slug} pb={pb} size="dd" type={type} />;
   };
 
   return (

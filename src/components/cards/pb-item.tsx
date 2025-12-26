@@ -14,7 +14,7 @@ interface Props {
 type Size = "dd" | "small" | "normal" | "big";
 
 const sizeClasses: Record<Size, string> = {
-  dd: "w-full aspect-square max-w-[80px] sm:max-w-[100px]", // updated
+  dd: "w-full aspect-square max-w-[70px] sm:max-w-[100px]", // updated
   small: "w-[100px] h-[100px]",
   normal: "w-[120px] h-[120px] sm:w-[160px] sm:h-[160px]",
   big: "w-[150px] h-[150px] sm:w-[200px] sm:h-[200px]",
