@@ -1,4 +1,5 @@
 ---
+import { DescriptionBox } from "../utils/DescriptionBox";
 interface Props {
   title: string;
   description: string;
@@ -9,24 +10,36 @@ interface Props {
 const { title, description, image, class: className } = Astro.props;
 ---
 
-<div
-  style="background: linear-gradient(270deg, #CECECE 0%, rgba(255, 255, 255, 0) 50%, #CECECE 100%);"
-  class:list={["w-full flex justify-center", className]}>
+<div class:list={["w-full flex items-center", className]}>
   <div
-    class="max-md:flex-col flex px-8 md:px-14 py-8 gap-10 md:gap-20 items-center justify-center">
-    <img
-      src={image || "imgg.png"}
-      alt={title}
-      class="rounded-md w-full md:w-[200px] lg:w-[500px]"
-      loading="lazy"
-    />
-    <div class="space-y-2 md:space-y-8 grow">
-      <h2 class="text-4xl font-bold tracking-tight max-w-[400px]">
+    class="flex flex-row px-8 w-full py-8 gap-10 md:gap-20 items-center justify-center">
+    <!-- LEFT: image + title -->
+    <div
+      class="flex flex-col items-center justify-center gap-3
+             w-[160px] md:w-[220px] lg:w-[260px] flex-shrink-0">
+      <img
+        src={image || "imgg.png"}
+        alt={title}
+        class="rounded-2xl object-contain bg-white
+               w-[130px] h-[130px]
+               xs:w-[150px] xs:h-[150px]
+               md:w-[180px] md:h-[180px]
+               lg:w-[200px] lg:h-[200px]"
+        loading="lazy"
+      />
+      <h2
+        class="w-full font-bold tracking-tight
+               text-lg xs:text-2xl md:text-3xl lg:text-4xl
+               text-center">
         {title}
       </h2>
-      <p class="text-lg text-slate-600 leading-relaxed">
-        {description}
-      </p>
+    </div>
+
+    <!-- RIGHT: description + slot -->
+    <div
+      class="space-y-2 md:space-y-6 grow w-full h-full
+        overflow-hidden">
+      <DescriptionBox client:load text={description} />
       <slot />
     </div>
   </div>

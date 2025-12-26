@@ -1,71 +1,72 @@
 ---
-import Layout from '@layouts/Layout.astro'
-import Container from '@components/container.astro'
-import Description from '@components/description.astro'
-import PbList from '@components/pb-list'
-import ScrollView from '@components/ui/scroll-view.astro'
-import PbItem from '@components/cards/pb-item'
-import Link from '@components/ui/link.astro'
-import DDItem from '@components/cards/dd-item'
-import type { Brand } from 'types'
-import { getBrand } from 'db/server'
-import { drizzle } from 'drizzle-orm/d1'
-import * as s from 'db/schema'
+import Layout from "@layouts/Layout.astro";
+import Container from "@components/container.astro";
+import Description from "@components/description.astro";
+import PbList from "@components/pb-list";
+import ScrollView from "@components/ui/scroll-view.astro";
+import PbItem from "@components/cards/pb-item";
+import Link from "@components/ui/link.astro";
+import DDItem from "@components/cards/dd-item";
+import type { Brand } from "types";
+import { getBrand } from "db/server";
+import { drizzle } from "drizzle-orm/d1";
+import * as s from "db/schema";
 interface Props {
-  entry: Brand
+  entry: Brand;
 }
 // @ts-ignore
-const { env } = Astro.locals.runtime
-console.log(env)
+const { env } = Astro.locals.runtime;
+console.log(env);
 const db = drizzle(env.DB, {
-  schema: s
-})
+  schema: s,
+});
 async function getBrandBySlug(slug: string) {
   try {
-    const entry = await getBrand(db, slug)
-    return entry
+    const entry = await getBrand(db, slug);
+    return entry;
   } catch (e) {
-    console.log(e)
-    return null
+    console.log(e);
+    return null;
   }
 }
-const { slug } = Astro.params
-if (!slug) return Astro.redirect('/404')
-const entry = await getBrandBySlug(slug)
-if (!entry) return Astro.redirect('/404')
+const { slug } = Astro.params;
+if (!slug) return Astro.redirect("/404");
+const entry = await getBrandBySlug(slug);
+if (!entry) return Astro.redirect("/404");
 
 // @ts-ignore
-const user = Astro.locals.user
+const user = Astro.locals.user;
 if (!user) {
-  entry.distributors = []
+  entry.distributors = [];
   entry.products = entry.products.map(({ distributors, ...r }) => ({
     ...r,
-    distributors: []
-  }))
+    distributors: [],
+  }));
 }
 ---
 
-<Layout title={entry.name} bread={['brand', entry.name]}>
-  <Container class='py-12'>
-    <h2 class='text-4xl font-bold tracking-tight px-16 mb-4'>
-      {entry.name}
-    </h2>
-    <Description
-      title={entry.name}
-      description={entry.description || ''}
-      image={entry.image}
-    />
-    <div class='px-8 space-y-16 mt-12'>
+<Layout title={entry.name} bread={["brand", entry.name]}>
+  <Container class="">
+    <section class="">
+      <div class="flex flex-row items-start gap-6 md:gap-12 lg:gap-16">
+        <div class="flex-1">
+          <Description
+            title={entry.name}
+            description={entry.description || ""}
+            image={entry.image || "/imgg.png"}
+          />
+        </div>
+      </div>
+    </section>
+
+    <div class="px-8 space-y-16 mt-12">
       {
         entry.products.length > 0 && (
           <PbList
-            parent={{
-              name: entry.name,
-              slug: entry.slug
-            }}
+            parent={{ name: entry.name, slug: entry.slug }}
             client:load
             list={entry.products}
-            type='product'
+            type="product"
             useDialog={true}
           />
         )
@@ -73,8 +74,8 @@ if (!user) {
 
       {
         entry.dealers.length > 0 && (
-          <div class='flex flex-col gap-6 items-center'>
-            <h3 class='text-5xl font-extrabold text-[#003DA6] text-center w-full font-gr'>
+          <div class="flex flex-col gap-6 items-center">
+            <h3 class="text-5xl font-extrabold text-[#003DA6] text-center w-full font-gr">
               {`Dealers of ${entry.name}`}
             </h3>
             <ScrollView>
@@ -84,21 +85,22 @@ if (!user) {
             </ScrollView>
             {entry.distributors.length > 6 && (
               <Link
-                target='_blank'
+                target="_blank"
                 href={`/dealer?brand=${entry.slug}`}
-                class='w-fit text-xs'>
+                class="w-fit text-xs">
                 VIEW ALL DEALERS
               </Link>
             )}
           </div>
         )
       }
+
       {
         entry.distributors.length > 0 && (
           <>
-            <div class='bg-gradient-to-r from-transparent via-[#003da6] to-transparent h-0.5 w-full' />
-            <div class='flex flex-col gap-6 items-center'>
-              <h3 class='text-5xl font-extrabold text-[#003DA6] text-center w-full font-gr'>
+            <div class="bg-gradient-to-r from-transparent via-[#003da6] to-transparent h-0.5 w-full" />
+            <div class="flex flex-col gap-6 items-center">
+              <h3 class="text-5xl font-extrabold text-[#003DA6] text-center w-full font-gr">
                 {`Distributors of ${entry.name}`}
               </h3>
               <ScrollView>
@@ -112,9 +114,9 @@ if (!user) {
               </ScrollView>
               {entry.distributors.length > 6 && (
                 <Link
-                  target='_blank'
+                  target="_blank"
                   href={`/distributors?brand=${entry.slug}`}
-                  class='w-fit text-xs'>
+                  class="w-fit text-xs">
                   VIEW ALL DISTRIBUTORS
                 </Link>
               )}
@@ -122,12 +124,13 @@ if (!user) {
           </>
         )
       }
-      <div class='space-y-4 text-lg font-bold w-full'>
+
+      <div class="space-y-4 text-lg font-bold w-full">
         <p>More Brands</p>
         <ScrollView>
           {
             entry.moreBrands.map((data) => (
-              <PbItem type='brand' pb={data} size='small' shadow={true} />
+              <PbItem type="brand" pb={data} size="small" shadow={true} />
             ))
           }
         </ScrollView>

@@ -32,9 +32,9 @@ export function DDDialog({ bussiness, children }: BusinessDialogProps) {
                 {bussiness.shopName}
               </DialogTitle>
               <div className="space-y-2">
-                {bussiness.contact && (
-                  <div className="  space-y-1">
-                    <p className="font-semibold">Contact:</p>
+                {bussiness.contact && bussiness.contact.length > 0 && (
+                  <div className="space-y-1 flex flex-row">
+                    <p className="font-semibold pt-1 pr-1">Contact:</p>
                     {bussiness.contact.map((c, i) => (
                       <ContactButton contact={c} key={i} size="large" />
                     ))}
@@ -51,7 +51,7 @@ export function DDDialog({ bussiness, children }: BusinessDialogProps) {
             <Button asChild className="flex-1" size="lg">
               <a href={`/${bussiness.type}/${bussiness.slug}`}>View Page</a>
             </Button>
-            {bussiness.location && (
+            {bussiness.location && bussiness.location.trim() !== "" && (
               <Button asChild className="flex-1" size="lg">
                 <a href={bussiness.location} target="_blank">
                   View Direction
