@@ -52,6 +52,7 @@
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.38.4",
     "drizzle-seed": "^0.2.1",
+    "framer-motion": "^12.23.26",
     "jose": "^5.9.6",
     "lucide-react": "^0.468.0",
     "nanoid": "^5.0.9",
