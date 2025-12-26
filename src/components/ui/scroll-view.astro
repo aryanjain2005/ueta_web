@@ -1,14 +1,18 @@
 ---
+// ScrollView.astro
 interface Props {
   class?: string;
+  gap?: string; // new optional prop: "gap-6", "gap-4", etc.
 }
 
-const { class: className } = Astro.props;
+const { class: className, gap = "gap-8 md:gap-12" } = Astro.props;
 ---
 
 <div
   class:list={[
-    "flex gap-8 md:gap-12 w-fit max-w-full overflow-x-auto p-2",
+    "flex",
+    gap,
+    "w-fit max-w-full overflow-x-auto p-2", // use prop or default
     className,
   ]}>
   <slot />

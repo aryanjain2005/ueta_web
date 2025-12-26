@@ -125,10 +125,14 @@ if (!entry) return Astro.redirect("/404");
 
   {
     entry.shopImages && entry.shopImages.length > 0 && (
-      <ScrollView class="mx-auto">
+      <ScrollView class="mx-auto" gap="gap-4">
         {entry.shopImages.map((image) => (
-          <div class="h-[100px] sm:h-[160px] min-w-fit">
-            <img src={image} class="rounded-md h-full" loading="lazy" />
+          <div class="h-[100px] sm:h-[160px] min-w-fit flex-shrink-0">
+            <img
+              src={image}
+              class="rounded-md h-full w-full object-cover"
+              loading="lazy"
+            />
           </div>
         ))}
       </ScrollView>
