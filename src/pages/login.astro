@@ -3,9 +3,18 @@ import Layout from "@layouts/Layout.astro";
 import LoginForm from "@components/LoginForm";
 ---
 
-<Layout title="Login">
+<!-- <Layout title="Login">
   <div class="text-center space-y-4 max-w-md mx-auto py-8 px-2 grow">
     <h1 class="text-3xl font-bold">Login</h1>
     <LoginForm client:load />
+  </div>
+</Layout> -->
+<Layout title="Login">
+  <div class="min-h-screen flex items-center justify-center px-4">
+    <div
+      class="monkeylogin w-[320px] xs:w-[400px] sm:w-[450px] max-w-full flex flex-col items-center rounded-[24px] sm:rounded-[30px] shadow-xl sm:shadow-2xl"
+      style={`background-image: url("/img/bg.jpg");`}>
+      <LoginForm client:load />
+    </div>
   </div>
 </Layout>

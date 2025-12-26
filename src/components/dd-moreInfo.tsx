@@ -52,7 +52,7 @@ export const DDMoreInfo = ({
               {bussiness.contacts.map((contact) => (
                 <ContactButton
                   key={contact.value}
-                  size="small" // uses the tiny h-2.5 w-2.5 icons
+                  // size="normal"
                   contact={contact}
                 />
               ))}
