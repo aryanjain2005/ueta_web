@@ -23,7 +23,9 @@ const DDItem = ({
       {bussiness.image && (
         <div
           className={`flex items-center justify-center ${
-            size == "normal" ? "w-[160px] h-[160px] " : "w-[100px] h-[100px] "
+            size == "normal"
+              ? "w-[160px] h-[160px] "
+              : "w-[100px] h-[100px] md:w-[160px] md:h-[160px]"
           }`}>
           <img
             src={bussiness.image}
@@ -33,13 +35,27 @@ const DDItem = ({
           />
         </div>
       )}
-      <h2 className="tracking-tight font-medium text-2xl">{bussiness.name}</h2>
-      <h5 className="tracking-tight text-lg">{bussiness.shopName}</h5>
+      <h2
+        className={`tracking-tight font-medium ${
+          size === "normal"
+            ? "text-lg"
+            : "whitespace-nowrap text-sm md:text-base"
+        }`}>
+        {bussiness.name}
+      </h2>
+      <h5
+        className={`tracking-tight ${
+          size === "normal"
+            ? "text-lg"
+            : "whitespace-nowrap text-sm md:text-base"
+        }`}>
+        {bussiness.shopName}
+      </h5>
       {children}
       {bussiness.contact && bussiness.contact.length > 0 && (
-        <div className="flex gap-3 ">
+        <div className="flex gap-0 md:gap-3  ">
           {bussiness.contact.map((c, index) => (
-            <ContactButton key={index} contact={c} />
+            <ContactButton key={index} contact={c} size="small" />
           ))}
         </div>
       )}

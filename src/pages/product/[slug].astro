@@ -77,7 +77,12 @@ if (!user) {
             </h3>
             <ScrollView>
               {entry.dealers.slice(0, 6).map((dealer) => (
-                <DdItem client:load bussiness={dealer} useDialog={true} />
+                <DdItem
+                  client:load
+                  bussiness={dealer}
+                  useDialog={true}
+                  size="small"
+                />
               ))}
             </ScrollView>
             {entry.dealers.length > 6 && (
@@ -105,6 +110,7 @@ if (!user) {
                     client:load
                     bussiness={distributor}
                     useDialog={true}
+                    size="small"
                   />
                 ))}
               </ScrollView>

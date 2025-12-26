@@ -24,7 +24,7 @@ const PBList = ({
   className,
   list,
   type,
-  size = "dd",
+  size = "small",
   useDialog = false,
 }: Props) => {
   const [previewList, setPreviewList] = useState<typeof list>(
@@ -61,7 +61,7 @@ const PBList = ({
         </DDListDialog>
       );
     }
-    return <PBItem key={pb.slug} pb={pb} size="dd" type={type} />;
+    return <PBItem key={pb.slug} pb={pb} size={size} type={type} />;
   };
 
   return (
