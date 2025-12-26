@@ -15,6 +15,9 @@ module.exports = {
         ],
         gr: ["Gilroy", "Inter", ...defaultTheme.fontFamily.sans],
       },
+      screens: {
+        xs: "470px",
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",

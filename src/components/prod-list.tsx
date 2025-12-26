@@ -26,6 +26,7 @@ const ProdList = ({ brands }: Props) => {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [filtered, setFiltered] = useState<Brand>(brands);
+  const [visibleBrands, setVisibleBrands] = useState(4);
 
   useEffect(() => {
     const filteredProducts = brands
@@ -154,59 +155,94 @@ const ProdList = ({ brands }: Props) => {
         </Dialog>
       </div>
       <div className="w-full flex-col flex py-8 gap-10 md:gap-20 place-items-center">
-        {Object.values(filtered).map((brand) => {
-          const extendedList = brand.products.slice(4);
-          return (
-            <div className="w-full space-y-1">
-              <div className="w-full flex items-center justify-center">
-                <div className="flex items-center justify-center w-[100px] sm:w-[160px] h-auto pb-5">
-                  <img
-                    src={brand.image || "/imgg.png"}
-                    alt={brand.name}
-                    className="sm:w- rounded-md object-cover"
-                    loading="lazy"
-                  />
-                </div>
-              </div>
-              <div className="w-full flex max-sm:flex-col max-sm:justify-center">
-                <div className="w-full flex flex-wrap justify-center md:justify-start gap-8 md:gap-10">
-                  {brand.products.slice(0, 4).map((product) => (
-                    <PbItem
-                      type="product"
-                      size="dd"
-                      key={product.slug}
-                      pb={product}
-                    />
-                  ))}
-                  {extendedList.length > 0 &&
-                    extendedList.map((product) => (
-                      <PbItem
-                        size="dd"
-                        key={product.slug}
-                        pb={product}
-                        type="product"
-                        className={`extended-list-prods-${brand.slug} hidden`}
+        {Object.values(filtered)
+          .slice(0, visibleBrands)
+          .map((brand, idx, arr) => {
+            const extendedList = brand.products.slice(4);
+
+            return (
+              <div key={brand.slug} className="w-full space-y-4">
+                {/* brand block */}
+                <div className="w-full space-y-1">
+                  <div className="w-full flex items-center justify-center">
+                    <div className="flex items-center justify-center w-[100px] sm:w-[160px] h-auto pb-5">
+                      <img
+                        src={brand.image || "/imgg.png"}
+                        alt={brand.name}
+                        className="sm:w- rounded-md object-cover"
+                        loading="lazy"
                       />
-                    ))}
+                    </div>
+                  </div>
+
+                  <div className="w-full flex max-sm:flex-col max-sm:justify-center">
+                    <div className="w-full flex flex-wrap justify-center md:justify-start gap-8 md:gap-10">
+                      {brand.products.slice(0, 4).map((product) => (
+                        <PbItem
+                          type="product"
+                          size="dd"
+                          key={product.slug}
+                          pb={product}
+                        />
+                      ))}
+
+                      {extendedList.length > 0 &&
+                        extendedList.map((product) => (
+                          <PbItem
+                            size="dd"
+                            key={product.slug}
+                            pb={product}
+                            type="product"
+                            className={`extended-list-prods-${brand.slug} hidden`}
+                          />
+                        ))}
+                    </div>
+                  </div>
+
+                  {extendedList.length > 0 && (
+                    <ShowMore
+                      onClick={(isShow: boolean) => {
+                        const extendedList = document.querySelectorAll(
+                          `.extended-list-prods-${brand.slug}`
+                        );
+                        extendedList.forEach((prod) => {
+                          prod.classList.toggle("hidden", isShow);
+                        });
+                      }}
+                      className="flex items-center gap-2 text-black font-medium px-3 py-1.5"
+                      type="black"
+                    />
+                  )}
                 </div>
+
+                {/* separator: only between brands */}
+                {idx < arr.length - 1 && (
+                  <div className="bg-gradient-to-r from-transparent via-[#003da6] to-transparent h-0.5 w-full" />
+                )}
               </div>
-              {extendedList.length > 0 && (
-                <ShowMore
-                  onClick={(isShow: boolean) => {
-                    const extendedList = document.querySelectorAll(
-                      `.extended-list-prods-${brand.slug}`
-                    );
-                    extendedList.forEach((prod) => {
-                      prod.classList.toggle("hidden", isShow);
-                    });
-                  }}
-                  className="flex items-center gap-2 text-black font-medium px-3 py-1.5"
-                  type="black"
-                />
-              )}
-            </div>
-          );
-        })}
+            );
+          })}
+        {Object.values(filtered).length > 4 && (
+          <div className="mt-4 flex gap-3">
+            {/* Show fewer / reset */}
+            {visibleBrands > 4 && (
+              <button
+                className="px-4 py-2 rounded-md border border-black/40 text-sm font-medium hover:bg-black/5 transition-colors"
+                onClick={() => setVisibleBrands(4)}>
+                Fewer Brands
+              </button>
+            )}
+
+            {/* Show more */}
+            {Object.values(filtered).length > visibleBrands && (
+              <button
+                className="px-4 py-2 rounded-md border border-black/40 text-sm font-medium hover:bg-black/5 transition-colors"
+                onClick={() => setVisibleBrands((prev) => prev + 4)}>
+                More Brands
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

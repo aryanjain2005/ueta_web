@@ -36,7 +36,7 @@ const PbItem = ({
     <Container
       href={link ? `/${type}/${pb.slug}` : undefined}
       className={`flex flex-col items-center ${
-        isDd ? "w-24 sm:w-28 md:w-32" : "gap-1"
+        isDd ? "w-22 sm:w-28 md:w-32" : "gap-1"
       } ${className || ""}`}>
       <div
         className={`flex items-center justify-center rounded-2xl ${
