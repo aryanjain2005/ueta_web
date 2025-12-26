@@ -17,6 +17,7 @@ module.exports = {
       },
       screens: {
         xs: "470px",
+        abovexl: "1330px",
       },
       borderRadius: {
         lg: "var(--radius)",
