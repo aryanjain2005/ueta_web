@@ -136,7 +136,14 @@ if (!user) {
         <ScrollView>
           {
             entry.moreBrands.map((data) => (
-              <PbItem type="brand" pb={data} size="small" shadow={true} />
+              <PbItem
+                type="brand"
+                pb={data}
+                size="small"
+                className="w-18"
+                nameClassName="text-sm"
+                shadow={true}
+              />
             ))
           }
         </ScrollView>

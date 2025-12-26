@@ -5,6 +5,7 @@ interface Props {
   pb: Brand["moreBrands"][number];
   type: "product" | "brand";
   className?: string;
+  nameClassName?: string;
   size?: Size;
   children?: React.ReactNode;
   link?: boolean;
@@ -24,6 +25,7 @@ const PbItem = ({
   pb,
   type,
   className,
+  nameClassName,
   size = "normal",
   shadow = false,
   link = true,
@@ -36,7 +38,7 @@ const PbItem = ({
     <Container
       href={link ? `/${type}/${pb.slug}` : undefined}
       className={`flex flex-col items-center ${
-        isDd ? "w-22 sm:w-28 md:w-32" : "gap-1"
+        isDd ? "w-22 sm:w-28 md:w-32" : " gap-1"
       } ${className || ""}`}>
       <div
         className={`flex items-center justify-center rounded-2xl ${
@@ -56,11 +58,14 @@ const PbItem = ({
 
       <div className={isDd ? "mt-1 w-full px-[1px]" : ""}>
         <h2
-          className={
-            isDd
-              ? "w-full text-center text-xs sm:text-sm md:text-base font-medium tracking-tight truncate"
-              : "tracking-tight font-medium text-2xl"
-          }>
+          className={`
+    ${
+      isDd
+        ? "w-full text-center text-xs sm:text-sm md:text-base font-medium tracking-tight truncate"
+        : "tracking-tight font-medium "
+    }
+    ${nameClassName || "text-2xl"}`} // ✅ Applies your custom classes
+        >
           {pb.name}
         </h2>
       </div>

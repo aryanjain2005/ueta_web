@@ -131,7 +131,14 @@ if (!user) {
         <ScrollView>
           {
             entry.moreProducts.map((data) => (
-              <PbItem pb={data} type="product" size="small" shadow={true} />
+              <PbItem
+                pb={data}
+                type="product"
+                size="small"
+                shadow={true}
+                className="w-18"
+                nameClassName="text-sm"
+              />
             ))
           }
         </ScrollView>
