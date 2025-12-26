@@ -41,16 +41,14 @@ const PbItem = ({
         isDd ? "w-22 sm:w-28 md:w-32" : " gap-1"
       } ${className || ""}`}>
       <div
-        className={`flex items-center justify-center rounded-2xl ${
-          sizeClasses[size]
-        } ${shadow ? "shadow-md p-2" : ""}`}>
+        className={`flex items-center justify-center ${sizeClasses[size]} ${
+          shadow ? "shadow-md p-2" : ""
+        }`}>
         <img
           src={pb.image || "imgg.png"}
           alt={pb.name}
           className={
-            isDd
-              ? "w-full h-full rounded-md object-cover"
-              : "rounded-md object-cover"
+            isDd ? "w-full h-full rounded-md object-cover" : "object-cover"
           }
           loading="lazy"
         />

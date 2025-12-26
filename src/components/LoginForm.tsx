@@ -44,11 +44,11 @@ const LoginForm = () => {
           className="monkey flex items-center justify-center"
           style={{
             backgroundImage: isPasswordFocus
-              ? 'url("/img/monkey_pwd.gif")'
-              : 'url("/img/monkey.gif")',
+              ? 'url("/media/monkey_pwd.gif")'
+              : 'url("/media/monkey.gif")',
           }}>
           <img
-            src="/img/monkey-hand.png"
+            src="/media/monkey-hand.png"
             alt="Monkey hands"
             className={`transition-all duration-700 w-[170px] h-[170px] ${
               isPasswordFocus ? "mt-[0%]" : "mt-[110%]"
