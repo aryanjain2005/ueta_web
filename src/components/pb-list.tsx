@@ -6,7 +6,7 @@ import type { Brand, Product } from "types";
 import DdInfo from "./dd-info.astro";
 
 type Props = {
-  size?: "normal" | "small";
+  size?: "normal" | "small" | "dd";
   type: "product" | "brand";
   parent?: {
     name: string;
@@ -24,7 +24,7 @@ const PBList = ({
   className,
   list,
   type,
-  size = "normal",
+  size = "dd",
   useDialog = false,
 }: Props) => {
   const [previewList, setPreviewList] = useState<typeof list>(
@@ -66,7 +66,7 @@ const PBList = ({
 
   return (
     <div className={`flex flex-col items-center gap-4 ${className}`}>
-      <h3 className="text-4xl font-bold uppercase mb-10 font-gr ">{`Shop by ${
+      <h3 className="text-3xl font-bold uppercase mb-10 font-gr ">{`Shop by ${
         type === "product" ? "Product" : "Brand"
       }`}</h3>
       <div className="flex flex-wrap gap-8 md:gap-14 place-content-center">

@@ -33,11 +33,13 @@ export function DDDialog({ bussiness, children }: BusinessDialogProps) {
               </DialogTitle>
               <div className="space-y-2">
                 {bussiness.contact && bussiness.contact.length > 0 && (
-                  <div className="space-y-1 flex flex-row">
-                    <p className="font-semibold pt-1 pr-1">Contact:</p>
-                    {bussiness.contact.map((c, i) => (
-                      <ContactButton contact={c} key={i} size="large" />
-                    ))}
+                  <div className="flex items-center gap-1 space-y-0">
+                    <p className="font-semibold shrink-0 pr-2">Contact:</p>
+                    <div className="flex items-center gap-1">
+                      {bussiness.contact.map((c, i) => (
+                        <ContactButton contact={c} key={i} size="large" />
+                      ))}
+                    </div>
                   </div>
                 )}
                 <div className="flex items-start gap-2">
