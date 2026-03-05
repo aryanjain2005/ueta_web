@@ -2,7 +2,7 @@ name="ueta-frontend"
 account_id = "f3e84daad81f86ff96c739f92d81f798"
 main = "./dist/_worker.js/index.js"
 compatibility_date = "2025-09-15"
-vars = { ENV_TYPE = "dev" }
+vars = { ENV_TYPE = "prod" }
 
 [assets]
 directory = "./dist"
@@ -11,14 +11,12 @@ binding = "__STATIC_CONTENT"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "ueta-dev"
-database_id = "6cc508bf-4c26-4142-8b0f-48d19d169659"
+database_name = "ueta-prod"
+database_id = "fb2d58a6-ecc5-491c-b01c-254e7cc8435a"
 migrations_dir = "migrations"
-preview_database_id = "DB"
 
-# 2. Production (used ONLY with --env prod)
 [env.prod]
-vars = { ENV_TYPE = "prod" }
+vars = { ENV_TYPE = "dev" }
 d1_databases = [
-    { binding = "DB", database_name = "ueta-prod", database_id = "fb2d58a6-ecc5-491c-b01c-254e7cc8435a", migrations_dir = "migrations" }
+    { binding = "DB", database_name = "ueta-dev", database_id = "6cc508bf-4c26-4142-8b0f-48d19d169659", migrations_dir = "migrations" }
 ]
