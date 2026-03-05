@@ -110,7 +110,7 @@ export default function CatalogManager({
         <Button
           variant="outline"
           className="rounded-full gap-2 border-black hover:bg-black hover:text-white transition-all">
-          <PlusCircle className="h-4 w-4" /> Edit Catalogue
+          <PlusCircle className="h-4 w-4" /> Edit Catalog
         </Button>
       </DialogTrigger>
 
