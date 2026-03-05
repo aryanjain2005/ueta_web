@@ -18,6 +18,7 @@ preview_database_id = "DB"
 
 # 2. Production (used ONLY with --env prod)
 [env.prod]
+vars = { ENV_TYPE = "prod" }
 d1_databases = [
     { binding = "DB", database_name = "ueta-prod", database_id = "fb2d58a6-ecc5-491c-b01c-254e7cc8435a", migrations_dir = "migrations" }
 ]
