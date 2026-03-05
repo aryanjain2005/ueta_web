@@ -1,0 +1,223 @@
+---
+import Layout from "@layouts/Layout.astro";
+import ContactButton from "@components/contact-button";
+import ScrollView from "@components/ui/scroll-view.astro";
+import CatalogManager from "@components/CatalogManager";
+import ProdList from "@components/prod-list";
+import { drizzle } from "drizzle-orm/d1";
+import { eq } from "drizzle-orm";
+import * as s from "db/schema";
+
+// 1. Get user from middleware (instead of hardcoding ID)
+const user = Astro.locals.user;
+
+// 2. Security: If no user is logged in, send them to login
+if (!user) {
+  return Astro.redirect("/login");
+}
+
+const { env } = Astro.locals.runtime;
+const db = drizzle(env.DB, { schema: s });
+
+// 1. Fetch the data as you were doing...
+const userData = await db.query.users.findFirst({
+  where: eq(s.users.id, parseInt(user.id, 10)),
+  with: {
+    business: {
+      with: {
+        contacts: true,
+        businessBrandProducts: {
+          with: {
+            product: true,
+            brand: true,
+          },
+        },
+      },
+    },
+  },
+});
+//if  business is null then redirect to home page
+if (!userData?.business) {
+  return Astro.redirect("/");
+}
+const business = userData?.business;
+
+// 2. USE THIS GROUPING LOGIC INSTEAD OF THE SIMPLE .MAP
+const brandsMap = new Map();
+
+business?.businessBrandProducts.forEach((bbp) => {
+  const brandId = bbp.brand.id;
+  const brandSlug = bbp.brand.slug; // Assuming slug is 'samsung'
+
+  if (!brandsMap.has(brandId)) {
+    // Initialize the brand entry if it's the first time we see it
+    brandsMap.set(brandId, {
+      ...bbp.brand,
+      products: [],
+    });
+  }
+
+  // Add the product to this brand's list
+  brandsMap.get(brandId).products.push(bbp.product);
+});
+
+// Convert the Map back into an array for ProdList
+const formattedBrands = Array.from(brandsMap.values());
+---
+
+<Layout title="My Business Profile">
+  <main class="max-w-6xl mx-auto pb-20">
+    <div class="flex justify-between items-center px-8 py-6">
+      <h1 class="text-2xl font-bold">Manage Business</h1>
+      <button
+        id="edit-btn"
+        class="bg-black text-white px-6 py-2 rounded-full hover:bg-gray-800 transition">
+        Edit Profile
+      </button>
+    </div>
+
+    <form id="profile-form" method="POST">
+      <section class="px-2 xs:px-6 md:px-8 py-6">
+        <div class="flex flex-row items-start gap-4 xs:gap-10 md:gap-12">
+          <div
+            class="flex flex-col items-center gap-4 w-[160px] md:w-[260px] flex-shrink-0">
+            <div class="relative group">
+              <img
+                src={business.image || "/imgg.png"}
+                alt={business.name}
+                class="w-[130px] h-[130px] md:w-[200px] md:h-[200px] rounded-2xl object-cover shadow-lg"
+              />
+              <input
+                type="file"
+                name="image"
+                class="hidden"
+                id="image-upload"
+              />
+              <label
+                for="image-upload"
+                class="absolute inset-0 bg-black/40 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer rounded-2xl transition">
+                Change
+              </label>
+            </div>
+            <input
+              type="text"
+              name="name"
+              value={business.name}
+              class="font-semibold w-full text-center bg-transparent border-b border-transparent focus:border-gray-400 outline-none"
+              readonly
+            />
+          </div>
+
+          <div class="flex flex-col gap-4 w-full max-w-md">
+            <div class="space-y-2">
+              <label class="text-xs uppercase text-gray-500 font-bold"
+                >Shop Name</label
+              >
+              <input
+                type="text"
+                name="shopName"
+                value={business.shopName}
+                class="text-lg md:text-xl w-full border-b border-transparent focus:border-gray-400 outline-none"
+                readonly
+              />
+
+              <label
+                class="text-xs uppercase text-gray-500 font-bold block pt-2"
+                >Address</label
+              >
+              <textarea
+                name="address"
+                class="w-full text-sm md:text-base bg-transparent resize-none border-b border-transparent focus:border-gray-400 outline-none"
+                readonly>{business.address}</textarea
+              >
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+              {
+                business.contacts.map((contact) => (
+                  <ContactButton contact={contact} />
+                ))
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div id="save-container" class="hidden px-8 pb-10">
+        <button
+          type="submit"
+          class="w-full bg-green-600 text-white py-3 rounded-xl font-bold">
+          Save Changes
+        </button>
+      </div>
+    </form>
+
+    <div
+      class="px-8 flex justify-between items-center pt-10 border-t border-gray-100">
+      <h2 class="text-3xl font-extrabold font-gr">Your Product Catalogue</h2>
+      <CatalogManager client:load currentCatalog={formattedBrands} />
+    </div>
+
+    <ProdList client:load brands={formattedBrands} />
+  </main>
+</Layout>
+
+<script>
+  const editBtn = document.querySelector("#edit-btn");
+  const saveContainer = document.querySelector("#save-container");
+  const profileForm = document.querySelector(
+    "#profile-form",
+  ) as HTMLFormElement;
+  const inputs = document.querySelectorAll(
+    "#profile-form input, #profile-form textarea",
+  );
+
+  // --- Toggle Edit Mode ---
+  editBtn?.addEventListener("click", () => {
+    const isEditing = editBtn.textContent?.trim() === "Cancel";
+    editBtn.textContent = isEditing ? "Edit Profile" : "Cancel";
+    saveContainer?.classList.toggle("hidden");
+
+    inputs.forEach((input) => {
+      if (
+        input instanceof HTMLInputElement ||
+        input instanceof HTMLTextAreaElement
+      ) {
+        input.readOnly = isEditing;
+        input.classList.toggle("border-gray-400", !isEditing);
+      }
+    });
+  });
+
+  // --- Handle Save (Form Submission) ---
+  profileForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    console.log("🚀 Save triggered...");
+
+    const formData = new FormData(profileForm);
+    const data = Object.fromEntries(formData.entries());
+
+    console.log("📦 Data being sent to server:", data);
+
+    try {
+      const response = await fetch("/api/business/update", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (response.ok) {
+        console.log("✅ Success: Business updated!");
+        alert("Profile updated successfully!");
+        window.location.reload(); // Refresh to show saved data
+      } else {
+        const errorText = await response.text();
+        console.error("❌ Server Error:", errorText);
+        alert("Failed to save: " + errorText);
+      }
+    } catch (err) {
+      console.error("🔥 Network/Fetch Error:", err);
+      alert("An error occurred. Check console.");
+    }
+  });
+</script>

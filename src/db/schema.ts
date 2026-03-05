@@ -61,15 +61,18 @@ export const contacts = sqliteTable("contacts", {
 
 export const users = sqliteTable("users", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-
-  // ✅ new fields
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
   img: text("img"), // can be null
   role: text("role").default("user"), // "user" | "dealer" | "distributor"
   type: text("type").default("standard"), // "standard" | "admin"
-
+  businessId: integer("business_id")
+    .unique() 
+    .references(() => businesses.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
   createdAt: integer("created_at", { mode: "timestamp" }).default(
     new Date()
   ),
@@ -136,6 +139,13 @@ export const businessBrandProduct = sqliteTable(
   })
 );
 
+export const usersRelations = relations(users, ({ one }) => ({
+  business: one(businesses, {
+    fields: [users.businessId],
+    references: [businesses.id],
+  }),
+}));
+
 export const productsRelations = relations(products, ({ many }) => ({
   productBrands: many(productBrand),
   businessBrandProducts: many(businessBrandProduct),
@@ -146,7 +156,11 @@ export const brandsRelations = relations(brands, ({ many }) => ({
   businessBrandProducts: many(businessBrandProduct),
 }));
 
-export const businessesRelations = relations(businesses, ({ many }) => ({
+export const businessesRelations = relations(businesses, ({ one, many }) => ({
+  user: one(users, {
+    fields: [businesses.id],
+    references: [users.businessId],
+  }),
   contacts: many(contacts),
   businessBrandProducts: many(businessBrandProduct),
 }));

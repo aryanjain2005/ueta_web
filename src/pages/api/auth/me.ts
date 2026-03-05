@@ -1,3 +1,4 @@
+// src/pages/api/auth/me.ts
 import type { APIRoute } from "astro";
 import { jwtVerify } from "jose";
 import { TOKEN, SECRET } from "constant";
