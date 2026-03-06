@@ -16,6 +16,7 @@ module.exports = {
         gr: ["Gilroy", "Inter", ...defaultTheme.fontFamily.sans],
       },
       screens: {
+        xxs: "360px",
         xs: "470px",
         abovexl: "1330px",
       },

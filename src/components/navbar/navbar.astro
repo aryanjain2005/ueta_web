@@ -5,18 +5,20 @@ const user = Astro.locals?.user ?? null;
 const isAdmin = user?.role === "admin";
 const isDistributor = user?.role === "distributor";
 const logoutAction = "/api/auth/logout";
+const currentPath = Astro.url.pathname;
+const isProfilePage = currentPath === "/profile";
 ---
 
 <header class="w-full bg-[#0046BE] text-white">
   <div
     class="mx-auto flex items-center justify-between gap-4 px-4 py-3 md:px-8">
     <!-- Left: logo + search -->
-    <div class="flex items-center gap-3 min-w-0 flex-1">
-      <a href="/" class="text-lg whitespace-nowrap">
+    <div class="flex items-center gap-3 min-w-0 flex-1 justify-start">
+      <a href="/" class="text-base xxs:text-lg whitespace-nowrap flex-shrink-0">
         <span class="font-bold">UETA</span>
       </a>
 
-      <div class="ml-2 flex-none">
+      <div class="flex-grow min-w-0 ml-1 xxs:ml-4">
         <SearchBar
           client:load
           isAdmin={isAdmin}
@@ -26,63 +28,85 @@ const logoutAction = "/api/auth/logout";
     </div>
 
     <!-- Right: auth (always visible, all screen sizes) -->
-    <div class="flex items-center gap-2 shrink-0">
+    <div class="flex items-center gap-2 xxs:gap-2 shrink-0">
       {
         user ? (
           <>
-            {user.img && (
+            {/* {user.img && (
               <img
                 src={user.img}
                 alt="avatar"
                 class="hidden sm:block w-8 h-8 md:w-9 md:h-9 border border-white bg-red-700 rounded-full"
               />
-            )}
-            <span class="hidden sm:inline rounded-md bg-red-600 px-4 py-1.5 font-semibold text-white ">
+            )} */}
+            <span class="hidden md:inline rounded-md bg-red-600 px-4 py-1.5 font-semibold text-white ">
               Welcome {user.name}
             </span>
-            <form method="post" action={logoutAction}>
-              <button
-                type="submit"
-                class="px-2 py-1 md:px-4 md:py-2 rounded text-sm md:text-base">
+            {isProfilePage ? (
+              /* SHOW LOGOUT: Only on the profile page */
+              <form
+                method="post"
+                action={logoutAction}
+                class="flex items-center">
+                <button
+                  type="submit"
+                  title="Logout"
+                  class="p-2 hover:bg-blue-700 rounded-full transition">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width={1.5}
+                    stroke="currentColor"
+                    class="h-7 w-7">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"
+                    />
+                  </svg>
+                </button>
+              </form>
+            ) : (
+              /* SHOW PROFILE LINK: On all other pages when logged in */
+              <a
+                href="/profile"
+                title="Go to Profile"
+                class="p-2 hover:bg-blue-700 rounded-full transition">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke-width={1.5}
                   stroke="currentColor"
-                  class="h-7 w-7 cursor-pointer">
+                  class="h-7 w-7">
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                    d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"
+                    d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
                   />
                 </svg>
-              </button>
-            </form>
+              </a>
+            )}
           </>
         ) : (
-          <>
-            <a
-              href="/login"
-              class="px-3 py-1 md:px-4 md:py-2 rounded text-sm md:text-base">
-              {/* <div class="px-3 py-1 md:px-4 md:py-2 bg-white text-[#0046BE] rounded text-sm md:text-base">
-                Login
-              </div> */}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width={1.5}
-                stroke="currentColor"
-                class="h-8 w-8">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25"
-                />
-              </svg>
-            </a>
-          </>
+          <a
+            href="/login"
+            class="p-2 hover:bg-blue-700 rounded-full transition">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width={1.5}
+              stroke="currentColor"
+              class="h-8 w-8">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H2.25"
+              />
+            </svg>
+          </a>
         )
       }
     </div>

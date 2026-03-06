@@ -8,7 +8,7 @@ import { drizzle } from "drizzle-orm/d1";
 import { eq } from "drizzle-orm";
 import * as s from "db/schema";
 
-// 1. Get user from middleware (instead of hardcoding ID)
+// 1. Get user from middleware
 const user = Astro.locals.user;
 
 // 2. Security: If no user is logged in, send them to login
@@ -19,7 +19,7 @@ if (!user) {
 const { env } = Astro.locals.runtime;
 const db = drizzle(env.DB, { schema: s });
 
-// 1. Fetch the data as you were doing...
+// Fetch the data
 const userData = await db.query.users.findFirst({
   where: eq(s.users.id, parseInt(user.id, 10)),
   with: {
@@ -36,33 +36,33 @@ const userData = await db.query.users.findFirst({
     },
   },
 });
-//if  business is null then redirect to home page
+
+// If business is null then redirect to home page
 if (!userData?.business) {
   return Astro.redirect("/");
 }
 const business = userData?.business;
 
-// 2. USE THIS GROUPING LOGIC INSTEAD OF THE SIMPLE .MAP
+// Grouping logic for ProdList
 const brandsMap = new Map();
 
 business?.businessBrandProducts.forEach((bbp) => {
   const brandId = bbp.brand.id;
-  const brandSlug = bbp.brand.slug; // Assuming slug is 'samsung'
-
   if (!brandsMap.has(brandId)) {
-    // Initialize the brand entry if it's the first time we see it
     brandsMap.set(brandId, {
       ...bbp.brand,
       products: [],
     });
   }
-
-  // Add the product to this brand's list
   brandsMap.get(brandId).products.push(bbp.product);
 });
 
-// Convert the Map back into an array for ProdList
 const formattedBrands = Array.from(brandsMap.values());
+
+// CHARACTER LIMITS BASED ON YOUR EXAMPLES:
+// Name: "Ravindre Pratap Chundawat" -> 25
+// Shop Name: "Chundawat and Sons Messers Private Limited" -> 43
+// Address: "Lakecity Distributors... industry." -> 169
 ---
 
 <Layout title="My Business Profile">
@@ -103,6 +103,8 @@ const formattedBrands = Array.from(brandsMap.values());
               type="text"
               name="name"
               value={business.name}
+              maxlength="25"
+              placeholder="Full Name"
               class="font-semibold w-full text-center bg-transparent border-b border-transparent focus:border-gray-400 outline-none"
               readonly
             />
@@ -117,6 +119,8 @@ const formattedBrands = Array.from(brandsMap.values());
                 type="text"
                 name="shopName"
                 value={business.shopName}
+                maxlength="43"
+                placeholder="Shop Name"
                 class="text-lg md:text-xl w-full border-b border-transparent focus:border-gray-400 outline-none"
                 readonly
               />
@@ -127,6 +131,8 @@ const formattedBrands = Array.from(brandsMap.values());
               >
               <textarea
                 name="address"
+                maxlength="169"
+                placeholder="Business Address"
                 class="w-full text-sm md:text-base bg-transparent resize-none border-b border-transparent focus:border-gray-400 outline-none"
                 readonly>{business.address}</textarea
               >
@@ -146,7 +152,7 @@ const formattedBrands = Array.from(brandsMap.values());
       <div id="save-container" class="hidden px-8 pb-10">
         <button
           type="submit"
-          class="w-full bg-green-600 text-white py-3 rounded-xl font-bold">
+          class="w-full bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 transition">
           Save Changes
         </button>
       </div>
@@ -169,7 +175,7 @@ const formattedBrands = Array.from(brandsMap.values());
     "#profile-form",
   ) as HTMLFormElement;
   const inputs = document.querySelectorAll(
-    "#profile-form input, #profile-form textarea",
+    "#profile-form input:not([type='file']), #profile-form textarea",
   );
 
   // --- Toggle Edit Mode ---
@@ -185,6 +191,9 @@ const formattedBrands = Array.from(brandsMap.values());
       ) {
         input.readOnly = isEditing;
         input.classList.toggle("border-gray-400", !isEditing);
+
+        // Focus the first input when starting edit
+        if (!isEditing && input.name === "name") input.focus();
       }
     });
   });
@@ -192,12 +201,9 @@ const formattedBrands = Array.from(brandsMap.values());
   // --- Handle Save (Form Submission) ---
   profileForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    console.log("🚀 Save triggered...");
 
     const formData = new FormData(profileForm);
     const data = Object.fromEntries(formData.entries());
-
-    console.log("📦 Data being sent to server:", data);
 
     try {
       const response = await fetch("/api/business/update", {
@@ -207,16 +213,14 @@ const formattedBrands = Array.from(brandsMap.values());
       });
 
       if (response.ok) {
-        console.log("✅ Success: Business updated!");
         alert("Profile updated successfully!");
-        window.location.reload(); // Refresh to show saved data
+        window.location.reload();
       } else {
         const errorText = await response.text();
-        console.error("❌ Server Error:", errorText);
         alert("Failed to save: " + errorText);
       }
     } catch (err) {
-      console.error("🔥 Network/Fetch Error:", err);
+      console.error("Fetch Error:", err);
       alert("An error occurred. Check console.");
     }
   });
