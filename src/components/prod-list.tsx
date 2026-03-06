@@ -20,9 +20,10 @@ type Brand = Business<"dealer" | "distributor">["brands"];
 
 interface Props {
   brands: Brand;
+  isOwner?: boolean;
 }
 
-const ProdList = ({ brands }: Props) => {
+const ProdList = ({ brands, isOwner = false }: Props) => {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [filtered, setFiltered] = useState<Brand>(brands);
@@ -66,93 +67,127 @@ const ProdList = ({ brands }: Props) => {
   );
 
   return (
-    <div className="w-full px-8 md:px-14 py-8">
-      <div className="max-sm:flex-col flex w-full justify-between sm:pr-8 py-2 gap-2 md:gap-4 max-sm:items-end">
-        <p className="text-4xl font-extrabold font-gr max-sm:w-full max-[470px]:text-3xl">
-          Products With Brand
+    <div className="w-full px-4 xs:px-8 md:px-14 py-8">
+      <div className="flex flex-row items-center justify-between w-full gap-2 pb-4 border-b border-gray-100 mb-4 flex-nowrap overflow-hidden">
+        <p className="text-xl xs:text-2xl sm:text-3xl md:text-4xl font-extrabold font-gr truncate min-w-0 flex-shrink">
+          Our Catalog
         </p>
-        <Dialog>
-          <DialogTrigger asChild>
-            <button className="border flex gap-2 items-center border-black/50 rounded-sm w-fit px-4 py-1">
-              <span className="text-black/50"> Filter </span>
-              <Filter className="h-5 w-5" fill="black" opacity="0.5" />
-            </button>
-          </DialogTrigger>
-          <DialogContent className="max-w-[90vw] sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Filter Settings</DialogTitle>
-            </DialogHeader>
-            <Tabs defaultValue="brands" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="brands">Brands</TabsTrigger>
-                <TabsTrigger value="products">Products</TabsTrigger>
-              </TabsList>
-              <TabsContent value="brands">
-                <ScrollArea className="h-[300px] w-full rounded-md border p-4">
-                  {brandsList.map((brandSlug) => (
-                    <div
-                      key={brandSlug}
-                      className="flex items-center space-x-2 mb-2">
-                      <Checkbox
-                        id={`brand-${brandSlug}`}
-                        checked={selectedBrands.includes(brandSlug)}
-                        onCheckedChange={() => handleBrandToggle(brandSlug)}
-                      />
-                      <Label
-                        htmlFor={`brand-${brandSlug}`}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                        {brands.find((b) => b.slug === brandSlug)?.name}
-                      </Label>
-                    </div>
-                  ))}
-                </ScrollArea>
-              </TabsContent>
-              <TabsContent value="products">
-                <ScrollArea className="h-[300px] w-full rounded-md border p-4">
-                  {productsList.map((productSlug) => (
-                    <div
-                      key={productSlug}
-                      className="flex items-center space-x-2 mb-2">
-                      <Checkbox
-                        id={`product-${productSlug}`}
-                        checked={selectedProducts.includes(productSlug)}
-                        onCheckedChange={() => handleProductToggle(productSlug)}
-                      />
-                      <Label
-                        htmlFor={`product-${productSlug}`}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                        {
-                          brands
-                            .flatMap((b) => b.products)
-                            .find((p) => p.slug === productSlug)?.name
-                        }
-                      </Label>
-                    </div>
-                  ))}
-                </ScrollArea>
-              </TabsContent>
-            </Tabs>
-            <div className="mt-4 flex justify-between">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setSelectedBrands([]);
-                  setSelectedProducts([]);
-                }}>
-                Reset
-              </Button>
-              <DialogTrigger asChild>
+        <div className="flex items-center gap-1.5 xs:gap-3 flex-shrink-0">
+          {isOwner && (
+            <a
+              href="/catalog-update"
+              className="inline-flex items-center gap-1 bg-blue-600 text-white px-2 xs:px-4 py-1.5 rounded-sm hover:bg-blue-700 transition shadow-sm whitespace-nowrap">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+                stroke="currentColor"
+                className="w-3.5 h-3.5 xs:w-4 xs:h-4">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                />
+              </svg>
+              <span className="text-[10px] xs:text-xs sm:text-sm font-semibold uppercase tracking-tight">
+                <span className="hidden sm:inline">Manage Catalog</span>
+                <span className="inline sm:hidden">Manage</span>
+              </span>
+            </a>
+          )}
+          <Dialog>
+            <DialogTrigger asChild>
+              <button className="border flex gap-1 xs:gap-2 items-center border-black/50 rounded-sm px-2 xs:px-4 py-1.5 bg-white hover:bg-gray-50 transition flex-shrink-0">
+                <span className="text-black/50 text-[10px] xs:text-xs sm:text-sm font-medium uppercase">
+                  {" "}
+                  Filter{" "}
+                </span>
+                <Filter
+                  className="h-3 w-3 xs:h-4 xs:h-4"
+                  fill="black"
+                  opacity="0.5"
+                />
+              </button>
+            </DialogTrigger>
+            <DialogContent className="max-w-[90vw] sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Filter Settings</DialogTitle>
+              </DialogHeader>
+              <Tabs defaultValue="brands" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="brands">Brands</TabsTrigger>
+                  <TabsTrigger value="products">Products</TabsTrigger>
+                </TabsList>
+                <TabsContent value="brands">
+                  <ScrollArea className="h-[300px] w-full rounded-md border p-4">
+                    {brandsList.map((brandSlug) => (
+                      <div
+                        key={brandSlug}
+                        className="flex items-center space-x-2 mb-2">
+                        <Checkbox
+                          id={`brand-${brandSlug}`}
+                          checked={selectedBrands.includes(brandSlug)}
+                          onCheckedChange={() => handleBrandToggle(brandSlug)}
+                        />
+                        <Label
+                          htmlFor={`brand-${brandSlug}`}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                          {brands.find((b) => b.slug === brandSlug)?.name}
+                        </Label>
+                      </div>
+                    ))}
+                  </ScrollArea>
+                </TabsContent>
+                <TabsContent value="products">
+                  <ScrollArea className="h-[300px] w-full rounded-md border p-4">
+                    {productsList.map((productSlug) => (
+                      <div
+                        key={productSlug}
+                        className="flex items-center space-x-2 mb-2">
+                        <Checkbox
+                          id={`product-${productSlug}`}
+                          checked={selectedProducts.includes(productSlug)}
+                          onCheckedChange={() =>
+                            handleProductToggle(productSlug)
+                          }
+                        />
+                        <Label
+                          htmlFor={`product-${productSlug}`}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                          {
+                            brands
+                              .flatMap((b) => b.products)
+                              .find((p) => p.slug === productSlug)?.name
+                          }
+                        </Label>
+                      </div>
+                    ))}
+                  </ScrollArea>
+                </TabsContent>
+              </Tabs>
+              <div className="mt-4 flex justify-between">
                 <Button
+                  variant="outline"
                   onClick={() => {
-                    console.log("Selected Brands:", selectedBrands);
-                    console.log("Selected Products:", selectedProducts);
+                    setSelectedBrands([]);
+                    setSelectedProducts([]);
                   }}>
-                  Apply Filters
+                  Reset
                 </Button>
-              </DialogTrigger>
-            </div>
-          </DialogContent>
-        </Dialog>
+                <DialogTrigger asChild>
+                  <Button
+                    onClick={() => {
+                      console.log("Selected Brands:", selectedBrands);
+                      console.log("Selected Products:", selectedProducts);
+                    }}>
+                    Apply Filters
+                  </Button>
+                </DialogTrigger>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
       <div className="w-full flex-col flex py-8 gap-10 md:gap-20 place-items-center">
         {Object.values(filtered)

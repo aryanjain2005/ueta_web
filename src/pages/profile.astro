@@ -8,10 +8,8 @@ import { drizzle } from "drizzle-orm/d1";
 import { eq } from "drizzle-orm";
 import * as s from "db/schema";
 
-// 1. Get user from middleware
 const user = Astro.locals.user;
 
-// 2. Security: If no user is logged in, send them to login
 if (!user) {
   return Astro.redirect("/login");
 }
@@ -19,7 +17,6 @@ if (!user) {
 const { env } = Astro.locals.runtime;
 const db = drizzle(env.DB, { schema: s });
 
-// Fetch the data
 const userData = await db.query.users.findFirst({
   where: eq(s.users.id, parseInt(user.id, 10)),
   with: {
@@ -37,13 +34,11 @@ const userData = await db.query.users.findFirst({
   },
 });
 
-// If business is null then redirect to home page
 if (!userData?.business) {
   return Astro.redirect("/");
 }
 const business = userData?.business;
 
-// Grouping logic for ProdList
 const brandsMap = new Map();
 
 business?.businessBrandProducts.forEach((bbp) => {
@@ -68,7 +63,7 @@ const formattedBrands = Array.from(brandsMap.values());
 <Layout title="My Business Profile">
   <main class="max-w-6xl mx-auto pb-20">
     <div class="flex justify-between items-center px-8 py-6">
-      <h1 class="text-2xl font-bold">Manage Business</h1>
+      <!-- <h1 class="text-2xl font-bold">Manage Business</h1> -->
       <button
         id="edit-btn"
         class="bg-black text-white px-6 py-2 rounded-full hover:bg-gray-800 transition">

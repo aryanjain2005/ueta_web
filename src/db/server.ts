@@ -457,7 +457,10 @@ export const getDistributor = async (
       [] as Business<"distributor">["brands"],
     ),
   };
-  return distributor;
+  return {
+    ...distributor,
+    businessId: res.id // This is the ID from the businesses table
+  };
 };
 
 export const getDealer = async (
@@ -541,7 +544,10 @@ export const getDealer = async (
       [] as Business<"dealer">["brands"],
     ),
   };
-  return dealer;
+    return {
+    ...dealer,
+    businessId: res.id // This is the ID from the businesses table
+  };
 };
 
 export const getBrands = async (

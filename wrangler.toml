@@ -16,6 +16,10 @@ database_name = "ueta-prod"
 database_id = "fb2d58a6-ecc5-491c-b01c-254e7cc8435a"
 migrations_dir = "migrations"
 
+[[r2_buckets]]
+binding = 'MY_BUCKET'
+bucket_name = 'ueta-assets'
+
 # 2. Environment = DEV
 [env.dev]
 vars = { ENV_TYPE = "dev" }

@@ -7,6 +7,30 @@ const isDistributor = user?.role === "distributor";
 const logoutAction = "/api/auth/logout";
 const currentPath = Astro.url.pathname;
 const isProfilePage = currentPath === "/profile";
+let businessImg = null;
+
+if (user && user.id) {
+  try {
+    // Replace 'DB' with your actual D1 binding name from wrangler.toml
+    const { DB } = Astro.locals.runtime.env;
+
+    const result = await DB.prepare(
+      `
+      SELECT b.image 
+      FROM users u
+      JOIN businesses b ON u.business_id = b.id
+      WHERE u.id = ?
+      LIMIT 1
+    `,
+    )
+      .bind(user.id)
+      .first();
+
+    businessImg = result?.image;
+  } catch (e) {
+    console.error("Database error fetching user image:", e);
+  }
+}
 ---
 
 <header class="w-full bg-[#0046BE] text-white">
@@ -43,7 +67,6 @@ const isProfilePage = currentPath === "/profile";
               Welcome {user.name}
             </span>
             {isProfilePage ? (
-              /* SHOW LOGOUT: Only on the profile page */
               <form
                 method="post"
                 action={logoutAction}
@@ -68,24 +91,34 @@ const isProfilePage = currentPath === "/profile";
                 </button>
               </form>
             ) : (
-              /* SHOW PROFILE LINK: On all other pages when logged in */
               <a
                 href="/profile"
                 title="Go to Profile"
-                class="p-2 hover:bg-blue-700 rounded-full transition">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width={1.5}
-                  stroke="currentColor"
-                  class="h-7 w-7">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                class="p-1 hover:bg-blue-700 rounded-full transition overflow-hidden">
+                {businessImg ? (
+                  <img
+                    src={businessImg}
+                    alt="Business Profile"
+                    class="h-9 w-9 rounded-full object-cover border border-white/20"
                   />
-                </svg>
+                ) : (
+                  /* Fallback SVG if no image is found */
+                  <div class="p-1">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width={1.5}
+                      stroke="currentColor"
+                      class="h-7 w-7">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+                      />
+                    </svg>
+                  </div>
+                )}
               </a>
             )}
           </>
