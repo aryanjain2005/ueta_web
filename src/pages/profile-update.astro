@@ -304,7 +304,6 @@ const shopImages = b.shopImages?.split(",").filter(Boolean) || [];
     );
   });
 
-  // Profile Image Preview/Logic
   const imageUpload = document.getElementById(
     "image-upload",
   ) as HTMLInputElement;
@@ -319,64 +318,120 @@ const shopImages = b.shopImages?.split(",").filter(Boolean) || [];
   imageUpload?.addEventListener("change", (e: any) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (re) => {
-        mainPreview.src = re.target?.result as string;
-      };
-      reader.readAsDataURL(file);
+      mainPreview.src = URL.createObjectURL(file);
     }
   });
 
   deleteProfileBtn?.addEventListener("click", () => {
     const fallback = "/media/person1.png";
     mainPreview.src = fallback;
-    profileImageValue.value = fallback; // Tells server to save fallback URL
-    imageUpload.value = ""; // Clears selected file
+    profileImageValue.value = fallback; // Tells the API to save the default path
+    imageUpload.value = ""; // Clears selected file if any
   });
 
-  // Gallery Management
+  // 2. Gallery Management
+  const addGalleryInput = document.getElementById(
+    "add-gallery-img",
+  ) as HTMLInputElement;
+  const galleryContainer = document.getElementById("gallery-container");
+  let newFilesArray: File[] = [];
+
+  addGalleryInput?.addEventListener("change", (e: any) => {
+    const files = Array.from(e.target.files as FileList);
+
+    files.forEach((file) => {
+      newFilesArray.push(file);
+      const localUrl = URL.createObjectURL(file);
+      const previewDiv = document.createElement("div");
+      previewDiv.className =
+        "relative aspect-square group rounded-2xl sm:rounded-[2rem] overflow-hidden border shadow-sm transition-all animate-in fade-in zoom-in";
+
+      // Track the index for deletion logic
+      previewDiv.setAttribute(
+        "data-new-file-index",
+        (newFilesArray.length - 1).toString(),
+      );
+
+      previewDiv.innerHTML = `
+        <img src="${localUrl}" class="w-full h-full object-cover opacity-60" />
+        <div class="absolute inset-0 flex items-center justify-center bg-black/10">
+          <span class="text-[8px] font-bold text-white bg-black/40 px-2 py-1 rounded-full uppercase">Pending Save</span>
+        </div>
+        <button type="button" class="remove-new-img absolute top-2 right-2 bg-white text-red-600 p-1.5 rounded-full shadow-md z-10">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      `;
+
+      galleryContainer?.insertBefore(previewDiv, addGalleryInput.parentElement);
+    });
+
+    // CRITICAL FIX: Reset the value so the same file can be selected again
+    addGalleryInput.value = "";
+  });
+
   document.addEventListener("click", (e: any) => {
-    const delBtn = e.target.closest(".delete-img");
-    if (delBtn) {
-      delBtn.closest(".relative").remove();
+    // Handle deleting OLD images (already in DB)
+    const oldDelBtn = e.target.closest(".delete-img");
+    if (oldDelBtn) {
+      oldDelBtn.closest(".relative").remove();
+    }
+
+    // Handle removing NEW images (pending upload)
+    const removeNewBtn = e.target.closest(".remove-new-img");
+    if (removeNewBtn) {
+      const parent = removeNewBtn.closest(".relative");
+      const index = parseInt(parent.getAttribute("data-new-file-index"));
+      newFilesArray.splice(index, 1);
+      parent.remove();
+
+      // Update remaining indexes to keep array in sync
+      if (galleryContainer) {
+        const remainingNew = galleryContainer.querySelectorAll(
+          "[data-new-file-index]",
+        );
+        remainingNew.forEach((el, i) =>
+          el.setAttribute("data-new-file-index", i.toString()),
+        );
+      }
     }
   });
 
-  // Handle Save with Multi-part Data
+  // 3. Form Submission
   const form = document.getElementById(
     "profile-update-form",
   ) as HTMLFormElement;
   form?.addEventListener("submit", async (e) => {
     e.preventDefault();
-
-    // Use FormData instead of JSON to support file uploads
     const formData = new FormData(form);
 
-    // Manually add gallery files from the hidden input if they exist
-    const galleryInput = document.getElementById(
-      "add-gallery-img",
-    ) as HTMLInputElement;
-    if (galleryInput?.files) {
-      for (let i = 0; i < galleryInput.files.length; i++) {
-        formData.append("newGalleryFiles", galleryInput.files[i]);
-      }
-    }
+    newFilesArray.forEach((file) => {
+      formData.append("newGalleryFiles", file);
+    });
 
-    // Submit button loading state (optional but recommended)
-    const btn = form.querySelector('button[type="submit"]');
-    if (btn) btn.textContent = "UPLOADING...";
+    const btn = form.querySelector(
+      'button[type="submit"]',
+    ) as HTMLButtonElement;
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "UPLOADING TO R2...";
+    }
 
     const res = await fetch("/api/business/update", {
       method: "POST",
-      body: formData, // No 'Content-Type' header needed; browser sets boundary
+      body: formData,
     });
 
     if (res.ok) {
-      alert("Profile & Images Updated!");
+      alert("Changes saved to Lakecity Distributors profile!");
       window.location.reload();
     } else {
-      alert("Update failed. Please try again.");
-      if (btn) btn.textContent = "SAVE ALL CHANGES";
+      alert("Upload failed. Check your R2 connection.");
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "SAVE ALL CHANGES";
+      }
     }
   });
 </script>
